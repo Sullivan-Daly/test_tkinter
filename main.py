@@ -98,8 +98,8 @@ class MenuDemo(ttk.Frame):
         self.image = 'delete.png'
         self.t_config = self.config_reader()
         self.elastic = cElastic(self.t_config)
-        # self.data = self.elastic.search_text(['Lyon'])
-        self.data = self.elastic.search_user("799317915640152064")
+        # self.data = self.elastic.search_text(['salon'])
+        # self.data = self.elastic.search_user("799317915640152064")
         # self.data = self.elastic.getTweets()
         self._create_widgets()
 
@@ -439,109 +439,44 @@ class CHandleEs:
         return es
 
 
-class CBatchId:
-    def __init__(self, xEs, t_config, tKeyWords):
-        self.xEs = xEs
+class cData:
+    def __init__(self):
+        pass
 
-        self.sIndexName = t_config['load__es_index']
-        self.sDocTypeName = t_config['load__es_doctype']
-        self.tKeyWords = tKeyWords
-        self.sDateBegin = t_config['load__es_date_begin'] + '000'
-        self.sDateEnd = t_config['load__es_date_end'] + '000'
-        self.nCurrentSize = 1
-        self.nIndexSize = int(self.xEs.count(index = self.sIndexName)['count'])
-        self.xIdPack = {}
+    def getTweets(self):
+        pass
 
+    def search_text(self):
+        pass
 
-        sKeyWords = '"'
-        nWords = 0
-        for word in tKeyWords:
-            sKeyWords += word
-            sKeyWords += ' '
-            nWords += 1
-        sKeyWords = sKeyWords[:-1]
-        sKeyWords += '"'
+    def search_user(self):
+        pass
 
-        lFields = ['id_str']
+class cCSV(cData):
+    def __init__(self, t_config):
+        self.t_config = t_config
+        self.path = t_config['load__path_file']
+        self.data = []
+        with open(self.t_config['load__path_file'], "r", encoding='utf16') as file:
+            i = 0
+            for row in file:
+                if i == 0:
+                    i += 1
+                else:
+                    h = row[1:].split('; ', maxsplit=3)
+                    tmp = h[2][1:-3].encode('ascii', errors='ignore').decode()
+                    x = (int(h[0]), str(tmp), str(h[1]))
+                    self.data.append(x)
 
-        if self.sDateBegin and self.sDateEnd:
+    def getTweets(self):
+        return self.data
 
-            xResponse = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m',
-                                  body={"query":{"bool":
-                                                     {"must":[
-                                                     {"match":
-                                                          {"text":
-                                                               {"query": sKeyWords, "operator": "or", "minimum_should_match": nWords}}},
-                                                     {'range': {'timestamp_ms': {'gte': self.sDateBegin,
-                                                                                     'lte': self.sDateEnd}}}
-                                                     ]}}})
+    def search_text(self, tKeyWords):
 
 
-            self.nIndexSize = int(xResponse['hits']['total'])
 
-            print("%d documents found" % xResponse['hits']['total'])
 
-        elif self.sDateBegin:
-            xResponse = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m',
-                                        sort=['timestamp_ms:asc'], _source=lFields, stored_fields=lFields,
-                                        body={'filter': {
-                                            'and': [
-                                                {'range': {'timestamp_ms': {'gte': self.sDateBegin}}},
-                                                {"match": {"content": sKeyWords}}]}})
-            print('if 2')
-        elif self.sDateEnd:
-            xResponse = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m',
-                                        sort=['timestamp_ms:asc'], _source=lFields, stored_fields=lFields,
-                                        body={'filter': {
-                                            'and': [
-                                                {'range': {'timestamp_ms': {'lte': self.sDateEnd}}},
-                                                {"match": {"content": sKeyWords}}]}})
-            print('if 3')
-        else:
-            xResponse = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m',
-                                        sort=['timestamp_ms:asc'], _source=lFields, stored_fields=lFields,
-                                        body={'query': {"match": {"content": sKeyWords}}})
-            print('if 4')
-
-        sScroll = xResponse['_scroll_id']
-        nCmpt = 0
-        for hit in xResponse['hits']['hits']:
-            self.xIdPack.update({hit['_source']['id_str']:1})
-            print({hit['source']['id_str']:1})
-            print(hit['_source']['text'])
-        #     xFile.write(hit['_source']['id_str'] + '; ')
-        #     xFile.write(hit['_source']['timestamp_ms'] + '; ')
-        #     xFile.write(hit['_source']['text'] + '\n')
-            self.nCurrentSize += 1
-            nCmpt += 1
-
-        #self.nIndexSize = int(self.xEs.count(index=self.sIndexName)['count'])
-        print('Taille index : ' + str(self.nIndexSize))
-
-        nCmpt += 1
-
-        while (nCmpt < self.nIndexSize):
-            try:
-                nCmpt -= 1
-                xResponse = self.xEs.scroll(scroll_id = sScroll, scroll ='10s')
-                sScroll = xResponse['_scroll_id']
-                for hit in xResponse['hits']['hits']:
-                    self.xIdPack.update({hit['_source']['id_str']:1})
-                    test = (hit['_source']['text'])
-                    # xFile.write(hit['_source']['id_str'] + '; ')
-                    # xFile.write(hit['_source']['timestamp_ms'] + '; ')
-                    # xFile.write(hit['_source']['text'] + '\n')
-                    self.nCurrentSize += 1
-                    nCmpt += 1
-                nCmpt += 1
-            except:
-                break
-        print ('FIN DE LA REQUETE ES')
-
-    def getPack(self):
-        return self.xIdPack
-
-class cElastic:
+class cElastic(cData):
     def __init__(self, t_config):
         self.sCluster = ''
         self.t_config = t_config
