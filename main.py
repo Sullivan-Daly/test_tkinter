@@ -6,15 +6,12 @@ from tkinter import ttk
 from tkinter.font import Font
 from elasticsearch import Elasticsearch
 import tkinter.filedialog as fdlg
-import string
-import time
 import datetime
-
-import sys
 import configparser
 
 
 class OwnTable(ttk.Frame):
+
     def __init__(self, parent, x_side, t_config):
 
         f = ttk.Frame(parent)
@@ -41,7 +38,7 @@ class OwnTable(ttk.Frame):
         # configure column headings
         for c in self.dataCols:
             self.tree.heading(c, text=c.title(),
-                              command=lambda c=c: self._column_sort(c, MenuDemo.SortDir))
+                              command=lambda ca=c: self._column_sort(ca, MenuDemo.SortDir))
             self.tree.column(c, width=Font().measure(c.title()))
 
         self.f = f
@@ -79,14 +76,15 @@ class OwnTable(ttk.Frame):
         # reverse sort direction for next sort operation
         MenuDemo.SortDir = not descending
 
-class cTable:
+
+class CTable:
     def __init__(self):
         self.data = []
         self.ok = []
         self.nok = []
 
-class MenuDemo(ttk.Frame):
 
+class MenuDemo(ttk.Frame):
     SortDir = True
 
     def __init__(self, isapp=True, name='menudemo'):
@@ -96,18 +94,18 @@ class MenuDemo(ttk.Frame):
         self.isapp = isapp
         self.image = 'delete.png'
         self.t_config = self.config_reader()
-        self.tData = cTable()
+        self.tData = CTable()
         print(self.t_config['load__option'])
         print(type(self.t_config['load__option']))
         if self.t_config['load__option'] == '1':
-            self.handleData = cCSV(self.t_config, self.tData)
+            self.handleData = CCSV(self.t_config, self.tData)
             print('csv')
         if self.t_config['load__option'] == '2':
-            self.handleData = cElastic(self.t_config, self.tData)
+            self.handleData = CElastic(self.t_config, self.tData)
             print('elastic')
         # self.data = self.elastic.search_text(['salon'])
         # self.data = self.elastic.search_user("799317915640152064")
-        self.tData.data = self.handleData.getTweets()
+        self.tData.data = self.handleData.get_tweets()
         self._create_widgets()
 
     @staticmethod
@@ -136,7 +134,6 @@ class MenuDemo(ttk.Frame):
                                                         ('All files', '.*'),)}
         opts['title'] = 'Select a file to open'
         fn = fdlg.asksaveasfilename(**opts)
-
         if fn:
             ent.delete(0, END)
             ent.insert(END, fn)
@@ -183,10 +180,10 @@ class MenuDemo(ttk.Frame):
         del_btn_tmp = ttk.Button(panel_right_1_button, text="DEL", width=15, name='delBtn')
         del_btn_tmp.pack(side=RIGHT, anchor=CENTER, pady='2m')
 
-        nok_btn_tmp = ttk.Button(panel_right_1_button, text='NOK', width=15, name='nokBtn')
+        nok_btn_tmp = ttk.Button(panel_right_1_button, text='NOK (-)', width=15, name='nokBtn')
         nok_btn_tmp.pack(side=RIGHT, anchor=CENTER, pady='2m')
 
-        ok_btn_tmp = ttk.Button(panel_right_1_button, text='OK', width=15, name='okBtn')
+        ok_btn_tmp = ttk.Button(panel_right_1_button, text='OK (+)', width=15, name='okBtn')
         ok_btn_tmp.pack(side=RIGHT, anchor=CENTER, pady='2m')
 
         msg1 = ["tmp"]
@@ -232,17 +229,20 @@ class MenuDemo(ttk.Frame):
         self.table_new = OwnTable(panel_left_top, TOP, self.t_config)
         self.table_new.load_data(self.tData.data)
 
-        tmp_btn = ttk.Button(panel_left_top, text='TMP', width=25, name='tmpBtn')
+        tmp_btn = ttk.Button(panel_left_top, text='TMP (T)', width=25, name='tmpBtn')
         tmp_btn.pack(side=RIGHT, anchor=CENTER, pady='2m')
 
-        nok_btn_new = ttk.Button(panel_left_top, text='NOK', width=25, name='nokBtnNew')
+        rt_btn_new = ttk.Button(panel_left_top, text='RETWEET (R)', width=25, name='rtBtnNew')
+        rt_btn_new.pack(side=RIGHT, anchor=CENTER, pady='2m')
+
+        user_btn_new = ttk.Button(panel_left_top, text='USER (U)', width=25, name='userBtnNew')
+        user_btn_new.pack(side=RIGHT, anchor=CENTER, pady='2m')
+
+        nok_btn_new = ttk.Button(panel_left_top, text='NOK (-)', width=25, name='nokBtnNew')
         nok_btn_new.pack(side=RIGHT, anchor=CENTER, pady='2m')
 
-        ok_btn_new = ttk.Button(panel_left_top, text='OK', width=25, name='okBtnNew')
+        ok_btn_new = ttk.Button(panel_left_top, text='OK (+)', width=25, name='okBtnNew')
         ok_btn_new.pack(side=RIGHT, anchor=CENTER, pady='2m')
-
-
-
 
         pw3.add(panel_left_top)
         pw3.add(pw4)
@@ -280,6 +280,8 @@ class MenuDemo(ttk.Frame):
         random_btn.bind('<Button-1>', self._load_random)
         del_btn_tmp.bind('<Button-1>', self._del_tmp_selection)
         tmp_btn.bind('<Button-1>', self._load_tmp_selection)
+        self.table_new.tree.bind('t', self._load_tmp_selection)
+        self.table_new.tree.bind('T', self._load_tmp_selection)
         self.table_ok.tree.bind('<Double-Button-1>', self._del_ok_table)
         self.table_nok.tree.bind('<Double-Button-1>', self._del_nok_table)
         # self.table_tmp.tree.bind('<Double-Button-1>', self._change_picture)
@@ -292,11 +294,6 @@ class MenuDemo(ttk.Frame):
         self.table_tmp.tree.bind('<Control-A>', self._select_all_tmp)
         self.table_tmp.tree.bind('+', self._load_ok_tmp)
         self.table_tmp.tree.bind('-', self._load_nok_tmp)
-
-
-    # def _change_picture(self,event):
-    #     item_id = str(self.table_ok.tree.focus())
-    #     item = self.table_ok.tree.item(item_id)
 
     def _select_all_tmp(self, event):
         for item_id in self.table_tmp.tree.get_children():
@@ -318,7 +315,6 @@ class MenuDemo(ttk.Frame):
         if self.table_ok.tree.exists(item_id):
             self.table_ok.tree.delete(item_id)
 
-
     def _del_nok_table(self, event):
         item_id = str(self.table_nok.tree.focus())
         item = self.table_nok.tree.item(item_id)
@@ -331,7 +327,6 @@ class MenuDemo(ttk.Frame):
         if self.table_nok.tree.exists(item_id):
             self.table_nok.tree.delete(item_id)
 
-
     def _load_ok_new(self, event):
         for item_id in self.table_new.tree.selection():
             item = self.table_new.tree.item(item_id)
@@ -343,7 +338,6 @@ class MenuDemo(ttk.Frame):
                 self.table_new.tree.delete(item_id)
             self.table_ok.tree.insert('', 'end', values=item['values'])
 
-
     def _load_nok_new(self, event):
         for item_id in self.table_new.tree.selection():
             item = self.table_new.tree.item(item_id)
@@ -354,7 +348,6 @@ class MenuDemo(ttk.Frame):
             if self.table_new.tree.exists(item_id):
                 self.table_new.tree.delete(item_id)
             self.table_nok.tree.insert('', 'end', values=item['values'])
-
 
     def _load_ok_tmp(self, event):
         for item_id in self.table_tmp.tree.selection():
@@ -413,17 +406,17 @@ class MenuDemo(ttk.Frame):
     def _load_search(self, event):
         self.table_new.tree.delete(*self.table_new.tree.get_children())
         if self.cb1.get() == 'word':
-            tWords = self.ent.get().split(' ')
-            self.tData.data = self.handleData.search_text(tWords)
+            t_words = self.ent.get().split(' ')
+            self.tData.data = self.handleData.search_text(t_words)
             self.table_new.load_data(self.tData.data)
         if self.cb1.get() == 'user':
-            sUser = self.ent.get()
-            self.tData.data = self.handleData.search_user(sUser)
+            s_user = self.ent.get()
+            self.tData.data = self.handleData.search_user(s_user)
             self.table_new.load_data(self.tData.data)
 
     def _load_random(self, event):
         self.table_new.tree.delete(*self.table_new.tree.get_children())
-        self.tData.data = self.handleData.getTweets()
+        self.tData.data = self.handleData.get_tweets()
         self.table_new.load_data(self.tData.data)
 
         # for i, item in enumerate(self.tData.data):
@@ -475,7 +468,7 @@ class CHandleEs:
 #    def __init__(self, sName):
 #        self.sCluster = sName
 
-    def connectionToEs(self):
+    def _connection_to_es(self):
         if len(self.sCluster):
             es = Elasticsearch(cluster=self.sCluster)
         else:
@@ -483,24 +476,28 @@ class CHandleEs:
         return es
 
 
-class cData:
-    def __init__(self, t_config, tData):
+class CData:
+    def __init__(self, t_config, t_data):
+        self.t_config = t_config
+        self.t_data = t_data
         pass
 
-    def getTweets(self):
+    def get_tweets(self):
         pass
 
-    def search_text(self, tKeyWords):
+    def search_text(self, t_key_words):
         pass
 
-    def search_user(self, ):
+    def search_user(self, s_user_id):
         pass
 
-class cCSV(cData):
-    def __init__(self, t_config, tData):
+
+class CCSV(CData):
+    def __init__(self, t_config, t_data):
         self.t_config = t_config
         self.path = t_config['load__path_file']
         self.data = []
+        self.t_data = t_data
         with open(self.t_config['load__path_file'], "r", encoding='utf16') as file:
             i = 0
             for row in file:
@@ -512,134 +509,123 @@ class cCSV(cData):
                     x = (int(h[0]), str(tmp), str(h[1]))
                     self.data.append(x)
 
-    def getTweets(self):
+    def get_tweets(self):
         return self.data
 
 
-
-class cElastic(cData):
-    def __init__(self, t_config, tData):
+class CElastic(CData):
+    def __init__(self, t_config, t_data):
         self.sCluster = ''
         self.t_config = t_config
-        self.xEs = self._connectionToEs()
+        self.xEs = self._connection_to_es()
         self.sLimit = t_config['load__es_limit']
         self.sIndexName = t_config['load__es_index']
         self.sDocTypeName = t_config['load__es_doctype']
         self.sDateBegin = t_config['load__es_date_begin'] + '000'
         self.sDateEnd = t_config['load__es_date_end'] + '000'
-        self.tData = tData
+        self.tData = t_data
+        self.nIndexSize = 0
 
-    def _connectionToEs(self):
+    def _connection_to_es(self):
         if len(self.sCluster):
             es = Elasticsearch(cluster=self.sCluster)
         else:
             es = Elasticsearch()
         return es
 
-    def getTweets(self):
-        self.nIndexSize = int(self.xEs.count(index = self.sIndexName)['count'])
-        self.xIdPack = {}
+    def get_tweets(self):
+        self.nIndexSize = int(self.xEs.count(index=self.sIndexName)['count'])
 
-        lFields = ['timestamp_ms', 'id_str', 'text', 'user.id_str']
+        l_fields = ['timestamp_ms', 'id_str', 'text', 'user.id_str']
 
-        xResponse = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m', sort = ['timestamp_ms:asc'],
-                                    _source=lFields, stored_fields=lFields, size=self.sLimit,
-                                    body={'query': {'match_all': {}}})
+        x_response = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m',
+                                     sort=['timestamp_ms:asc'], _source=l_fields, stored_fields=l_fields,
+                                     size=self.sLimit, body={'query': {'match_all': {}}})
 
-        print(xResponse)
+        print(x_response)
 
-        self.nIndexSize = int(xResponse['hits']['total'])
+        self.nIndexSize = int(x_response['hits']['total'])
         print(self.nIndexSize)
 
-        data = self._return_from_scroll(xResponse)
+        data = self._return_from_scroll(x_response)
         return data
 
-    def search_text(self, tKeyWords):
-        self.nIndexSize = int(self.xEs.count(index = self.sIndexName)['count'])
-        self.xIdPack = {}
+    def search_text(self, t_key_words):
+        self.nIndexSize = int(self.xEs.count(index=self.sIndexName)['count'])
 
-        sKeyWords = '"'
-        nWords = 0
-        for word in tKeyWords:
-            sKeyWords += word
-            sKeyWords += ' '
-            nWords += 1
-        sKeyWords = sKeyWords[:-1]
-        sKeyWords += '"'
+        s_key_words = '"'
+        n_words = 0
+        for word in t_key_words:
+            s_key_words += word
+            s_key_words += ' '
+            n_words += 1
+        s_key_words = s_key_words[:-1]
+        s_key_words += '"'
 
-        xResponse = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m',
-                                    body={"query": {"bool":
-                                        {"must": [
-                                            {"match":
-                                                 {"text":
-                                                      {"query": sKeyWords, "operator": "or",
-                                                       "minimum_should_match": nWords}}},
-                                            {'range': {'timestamp_ms': {'gte': self.sDateBegin,
-                                                                        'lte': self.sDateEnd}}}
-                                        ]}}})
+        x_response = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m', body={"query": {
+            "bool":
+                {"must": [
+                    {"match":
+                        {"text":
+                            {"query": s_key_words, "operator": "or", "minimum_should_match": n_words}}},
+                    {'range': {'timestamp_ms': {'gte': self.sDateBegin, 'lte': self.sDateEnd}}}]}}})
 
-        self.nIndexSize = int(xResponse['hits']['total'])
-        print("%d documents found" % xResponse['hits']['total'])
+        self.nIndexSize = int(x_response['hits']['total'])
+        print("%d documents found" % x_response['hits']['total'])
 
-        data = self._return_from_scroll(xResponse)
+        data = self._return_from_scroll(x_response)
 
         return data
 
-    def search_user(self, sUserId):
-        self.nIndexSize = int(self.xEs.count(index = self.sIndexName)['count'])
-        self.xIdPack = {}
+    def search_user(self, s_user_id):
+        self.nIndexSize = int(self.xEs.count(index=self.sIndexName)['count'])
 
-        xResponse = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m',
-                                    body={"query": {"bool":
-                                        {"must": [
-                                            {"match":
-                                                 {"user.id_str":
-                                                      {"query": sUserId}}},
-                                            {'range': {'timestamp_ms': {'gte': self.sDateBegin,
-                                                                        'lte': self.sDateEnd}}}
-                                        ]}}})
+        x_response = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m', body={"query": {
+            "bool":
+                {"must": [
+                    {"match":
+                        {"user.id_str":
+                            {"query": s_user_id}}},
+                    {'range': {'timestamp_ms': {'gte': self.sDateBegin, 'lte': self.sDateEnd}}}]}}})
 
-        self.nIndexSize = int(xResponse['hits']['total'])
-        print("%d documents found" % xResponse['hits']['total'])
+        self.nIndexSize = int(x_response['hits']['total'])
+        print("%d documents found" % x_response['hits']['total'])
 
-        data = self._return_from_scroll(xResponse)
+        data = self._return_from_scroll(x_response)
 
         return data
 
-    def _return_from_scroll(self, xResponse):
+    def _return_from_scroll(self, x_response):
         data = []
-        nCmpt = 0
+        n_cmpt = 0
 
-        sScroll = xResponse['_scroll_id']
-        for hit in xResponse['hits']['hits']:
-            self.xIdPack.update({hit['_source']['id_str']: 1})
-
+        s_scroll = x_response['_scroll_id']
+        for hit in x_response['hits']['hits']:
             st = datetime.datetime.fromtimestamp(int(hit['_source']['timestamp_ms'])/1000).strftime('%Y-%m-%d %H:%M:%S')
             test = (st, hit['_source']['id_str'], hit['_source']['text'].encode('ascii', errors='ignore').decode(),
                     hit['_source']['user']['id_str'])
-            if not test in self.tData.nok and not test in self.tData.ok :
+            if test not in self.tData.nok and test not in self.tData.ok:
                 data.append(test)
-            nCmpt += 1
+            n_cmpt += 1
         print('Taille index : ' + str(self.nIndexSize))
 
-        print(nCmpt)
-        nCmpt += 1
+        print(n_cmpt)
+        n_cmpt += 1
 
-        while (nCmpt < self.nIndexSize and nCmpt < int(self.sLimit)):
+        while n_cmpt < self.nIndexSize and n_cmpt < int(self.sLimit):
             try:
-                print('boucle')
-                nCmpt -= 1
-                xResponse = self.xEs.scroll(scroll_id=sScroll, scroll='10s')
-                sScroll = xResponse['_scroll_id']
-                for hit in xResponse['hits']['hits']:
-                    # self.xIdPack.update({hit['_source']['id_str']:1})
-                    st = datetime.datetime.fromtimestamp(int(hit['_source']['timestamp_ms'])/1000).strftime('%Y-%m-%d %H:%M:%S')
-                    test = (st, hit['_source']['id_str'], hit['_source']['text'].encode('ascii', errors='ignore').decode(),
-                            hit['_source']['user']['id_str'])
-                    if not test in self.tData.nok and not test in self.tData.ok:
+                n_cmpt -= 1
+                x_response = self.xEs.scroll(scroll_id=s_scroll, scroll='10s')
+                s_scroll = x_response['_scroll_id']
+                for hit in x_response['hits']['hits']:
+                    st = datetime.datetime.fromtimestamp(int(hit['_source']['timestamp_ms'])/1000)\
+                        .strftime('%Y-%m-%d %H:%M:%S')
+                    test = (st, hit['_source']['id_str'], hit['_source']['text'].encode('ascii', errors='ignore')
+                            .decode(), hit['_source']['user']['id_str'])
+                    if test not in self.tData.nok and test not in self.tData.ok:
                         data.append(test)
-                    nCmpt += 1
-                nCmpt += 1
+                    n_cmpt += 1
+                n_cmpt += 1
             except:
                 print('test')
                 break

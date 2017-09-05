@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="ae115d30-5fff-421c-bffe-c35cc6496c13" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config.ini" afterPath="$PROJECT_DIR$/config.ini" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.py" afterPath="$PROJECT_DIR$/main.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -18,8 +17,8 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="748">
-              <caret line="119" column="67" lean-forward="true" selection-start-line="119" selection-start-column="67" selection-end-line="119" selection-end-column="67" />
+            <state relative-caret-position="235">
+              <caret line="128" column="65" lean-forward="true" selection-start-line="128" selection-start-column="65" selection-end-line="128" selection-end-column="65" />
               <folding>
                 <element signature="e#41#62#0" expanded="true" />
               </folding>
@@ -108,12 +107,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>OwnTable</find>
-      <find>csv</find>
-      <find>1:</find>
-      <find>[0]</find>
-      <find>str(</find>
-      <find>+=</find>
       <find>xFile</find>
       <find>lFields</find>
       <find>update</find>
@@ -125,7 +118,6 @@
       <find>printable</find>
       <find>sScroll</find>
       <find>sLimit</find>
-      <find>xIdPack</find>
       <find>_limit</find>
       <find>data</find>
       <find>del_btn</find>
@@ -138,6 +130,13 @@
       <find>.delete(</find>
       <find>timestamp</find>
       <find>self.elastic</find>
+      <find>SortDir</find>
+      <find>cTable</find>
+      <find>cData</find>
+      <find>xIdPack</find>
+      <find>nIndexSize</find>
+      <find>getTw</find>
+      <find>get_tw</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -147,8 +146,8 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/demopanels.py" />
-        <option value="$PROJECT_DIR$/main.py" />
         <option value="$PROJECT_DIR$/config.ini" />
+        <option value="$PROJECT_DIR$/main.py" />
       </list>
     </option>
   </component>
@@ -190,7 +189,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.General" />
     <property name="last_opened_file_path" value="$USER_HOME$/AppData/Local/GitHubDesktop/app-0.8.0/resources/app/git/cmd/git.exe" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
   </component>
@@ -319,7 +318,14 @@
       <option name="project" value="LOCAL" />
       <updated>1504617589579</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="+ recherche generique&#10;+ gestion des tweets tries dans la recherche">
+      <created>1504625495697</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1504625495697</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -352,7 +358,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="interface class" />
     <MESSAGE value="+ interface boutons&#10;+ ajouts depuis table_new&#10;+ roccourcis clavier" />
-    <option name="LAST_COMMIT_MESSAGE" value="+ interface boutons&#10;+ ajouts depuis table_new&#10;+ roccourcis clavier" />
+    <MESSAGE value="+ recherche generique&#10;+ gestion des tweets tries dans la recherche" />
+    <option name="LAST_COMMIT_MESSAGE" value="+ recherche generique&#10;+ gestion des tweets tries dans la recherche" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -680,8 +687,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="748">
-          <caret line="119" column="67" lean-forward="true" selection-start-line="119" selection-start-column="67" selection-end-line="119" selection-end-column="67" />
+        <state relative-caret-position="235">
+          <caret line="128" column="65" lean-forward="true" selection-start-line="128" selection-start-column="65" selection-end-line="128" selection-end-column="65" />
           <folding>
             <element signature="e#41#62#0" expanded="true" />
           </folding>
