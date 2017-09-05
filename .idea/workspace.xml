@@ -17,8 +17,8 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="556">
-              <caret line="54" column="21" lean-forward="true" selection-start-line="54" selection-start-column="21" selection-end-line="54" selection-end-column="21" />
+            <state relative-caret-position="182">
+              <caret line="275" column="56" lean-forward="true" selection-start-line="275" selection-start-column="56" selection-end-line="275" selection-end-column="56" />
               <folding>
                 <element signature="e#41#62#0" expanded="true" />
               </folding>
@@ -80,7 +80,7 @@
         <entry file="file://$USER_HOME$/AppData/Local/Continuum/Miniconda3/Lib/tkinter/__init__.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="191">
-              <caret line="1698" column="0" lean-forward="false" selection-start-line="1698" selection-start-column="0" selection-end-line="1698" selection-end-column="0" />
+              <caret line="1244" column="0" lean-forward="false" selection-start-line="1244" selection-start-column="0" selection-end-line="1244" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -107,8 +107,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>del_btn</find>
-      <find>self.tmp_dict</find>
       <find>del</find>
       <find>entry</find>
       <find>picture</find>
@@ -130,13 +128,15 @@
       <find>treeview</find>
       <find>print</find>
       <find>search</find>
-      <find>data</find>
       <find>load_data</find>
       <find>printable</find>
       <find>sScroll</find>
       <find>sLimit</find>
       <find>xIdPack</find>
       <find>_limit</find>
+      <find>data</find>
+      <find>del_btn</find>
+      <find>ok_btn</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -304,6 +304,14 @@
       <option name="presentableId" value="Default" />
       <updated>1503500889132</updated>
     </task>
+    <task id="LOCAL-00001" summary="interface class">
+      <created>1504541146433</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1504541146433</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -332,6 +340,10 @@
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="interface class" />
+    <option name="LAST_COMMIT_MESSAGE" value="interface class" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -633,14 +645,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/AppData/Local/Continuum/Miniconda3/Lib/tkinter/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="191">
-          <caret line="1698" column="0" lean-forward="false" selection-start-line="1698" selection-start-column="0" selection-end-line="1698" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/AppData/Local/Continuum/Miniconda3/Lib/site-packages/elasticsearch/client/utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="170">
@@ -657,10 +661,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Continuum/Miniconda3/Lib/tkinter/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="191">
+          <caret line="1244" column="0" lean-forward="false" selection-start-line="1244" selection-start-column="0" selection-end-line="1244" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="556">
-          <caret line="54" column="21" lean-forward="true" selection-start-line="54" selection-start-column="21" selection-end-line="54" selection-end-column="21" />
+        <state relative-caret-position="182">
+          <caret line="275" column="56" lean-forward="true" selection-start-line="275" selection-start-column="56" selection-end-line="275" selection-end-column="56" />
           <folding>
             <element signature="e#41#62#0" expanded="true" />
           </folding>

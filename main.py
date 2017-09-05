@@ -7,6 +7,8 @@ from tkinter.font import Font
 from elasticsearch import Elasticsearch
 import tkinter.filedialog as fdlg
 import string
+import time
+import datetime
 
 import sys
 import configparser
@@ -19,7 +21,7 @@ class OwnTable(ttk.Frame):
         f.pack(side=x_side, fill=BOTH, expand=Y)
         self.t_config = t_config
         # create the tree and scrollbars
-        self.dataCols = ('ID', 'text', 'user')
+        self.dataCols = ('timestamp', 'ID', 'text', 'user')
         self.tree = ttk.Treeview(columns=self.dataCols, show='headings')
 
         ysb = ttk.Scrollbar(orient=VERTICAL, command=self.tree.yview)
@@ -56,18 +58,10 @@ class OwnTable(ttk.Frame):
             i += 1
             a = item[0]
             b = item[1]
-            h = item[2]
-            z = (a, str(b), str(h))
+            c = item[2]
+            d = item[3]
+            z = (a, str(b), str(c), d)
             test = self.tree.insert('', 'end', values=z)
-
-            if not i%10000 :
-                print(i)
-            # # and adjust column widths if necessary
-            # for idx, val in enumerate(item):
-            #     iwidth = Font().measure(val)
-            #     if self.tree.column(self.dataCols[idx], 'width') < iwidth:
-            #         self.tree.column(self.dataCols[idx], width=iwidth)
-
 
     def _column_sort(self, col, descending=False):
 
@@ -100,7 +94,7 @@ class MenuDemo(ttk.Frame):
         self.elastic = cElastic(self.t_config)
         # self.data = self.elastic.search_text(['salon'])
         # self.data = self.elastic.search_user("799317915640152064")
-        # self.data = self.elastic.getTweets()
+        self.data = self.elastic.getTweets()
         self._create_widgets()
 
     @staticmethod
@@ -173,14 +167,14 @@ class MenuDemo(ttk.Frame):
         panel_right_1_button = Frame(panel_right_1, name='button', width=30)
         panel_right_1_button.pack(side=BOTTOM, fill=BOTH)
 
-        ok_btn = ttk.Button(panel_right_1_button, text='OK', width=15, name='okBtn')
-        ok_btn.pack(side=RIGHT, anchor=CENTER, pady='2m')
+        del_btn_tmp = ttk.Button(panel_right_1_button, text="DEL", width=15, name='delBtn')
+        del_btn_tmp.pack(side=RIGHT, anchor=CENTER, pady='2m')
 
-        nok_btn = ttk.Button(panel_right_1_button, text='NOK', width=15, name='nokBtn')
-        nok_btn.pack(side=RIGHT, anchor=CENTER, pady='2m')
+        nok_btn_tmp = ttk.Button(panel_right_1_button, text='NOK', width=15, name='nokBtn')
+        nok_btn_tmp.pack(side=RIGHT, anchor=CENTER, pady='2m')
 
-        del_btn = ttk.Button(panel_right_1_button, text="DEL", width=15, name='delBtn')
-        del_btn.pack(side=RIGHT, anchor=CENTER, pady='2m')
+        ok_btn_tmp = ttk.Button(panel_right_1_button, text='OK', width=15, name='okBtn')
+        ok_btn_tmp.pack(side=RIGHT, anchor=CENTER, pady='2m')
 
         msg1 = ["tmp"]
         lb1 = ttk.Label(panel_right_1, text=''.join(msg1))
@@ -228,10 +222,27 @@ class MenuDemo(ttk.Frame):
         tmp_btn = ttk.Button(panel_left_top, text='TMP', width=25, name='tmpBtn')
         tmp_btn.pack(side=RIGHT, anchor=CENTER, pady='2m')
 
+        nok_btn_new = ttk.Button(panel_left_top, text='NOK', width=25, name='nokBtnNew')
+        nok_btn_new.pack(side=RIGHT, anchor=CENTER, pady='2m')
+
+        ok_btn_new = ttk.Button(panel_left_top, text='OK', width=25, name='okBtnNew')
+        ok_btn_new.pack(side=RIGHT, anchor=CENTER, pady='2m')
+
+
+
+
         pw3.add(panel_left_top)
         pw3.add(pw4)
 
-        panel_left_bottom_1 = Frame(pw4)
+        panel_left_bottom_2 = Frame(pw4, name='top')
+        panel_left_bottom_2.pack(side=LEFT, fill=BOTH, expand=Y)
+
+        msg4 = ["ok"]
+        lb4 = ttk.Label(panel_left_bottom_2, text=''.join(msg4))
+        lb4.configure(background='green')
+        lb4.pack(side=TOP, padx=5, pady=5)
+
+        panel_left_bottom_1 = Frame(pw5)
         panel_left_bottom_1.pack(side=LEFT, fill=BOTH, expand=Y)
 
         msg3 = ["nok"]
@@ -241,26 +252,20 @@ class MenuDemo(ttk.Frame):
 
         self.table_nok = OwnTable(panel_left_bottom_1, LEFT, self.t_config)
 
-        panel_left_bottom_2 = Frame(pw5, name='top')
-        panel_left_bottom_2.pack(side=LEFT, fill=BOTH, expand=Y)
-
-        msg4 = ["ok"]
-        lb4 = ttk.Label(panel_left_bottom_2, text=''.join(msg4))
-        lb4.configure(background='green')
-        lb4.pack(side=TOP, padx=5, pady=5)
-
         self.table_ok = OwnTable(panel_left_bottom_2, LEFT, self.t_config)
 
-        pw4.add(panel_left_bottom_1)
+        pw4.add(panel_left_bottom_2)
         pw4.add(pw5)
 
-        pw5.add(panel_left_bottom_2)
+        pw5.add(panel_left_bottom_1)
 
-        ok_btn.bind('<Button-1>', self._load_ok)
-        nok_btn.bind('<Button-1>', self._load_nok)
+        ok_btn_new.bind('<Button-1>', self._load_ok_new)
+        nok_btn_new.bind('<Button-1>', self._load_nok_new)
+        ok_btn_tmp.bind('<Button-1>', self._load_ok_tmp)
+        nok_btn_tmp.bind('<Button-1>', self._load_nok_tmp)
         search_btn.bind('<Button-1>', self._load_search)
         random_btn.bind('<Button-1>', self._load_random)
-        del_btn.bind('<Button-1>', self._del_tmp_selection)
+        del_btn_tmp.bind('<Button-1>', self._del_tmp_selection)
         tmp_btn.bind('<Button-1>', self._load_tmp_selection)
         self.table_ok.tree.bind('<Double-Button-1>', self._del_ok_table)
         self.table_nok.tree.bind('<Double-Button-1>', self._del_nok_table)
@@ -268,8 +273,13 @@ class MenuDemo(ttk.Frame):
         self.table_new.tree.bind('<Double-Button-1>', self._load_tmp_table)
         self.table_new.tree.bind('<Control-a>', self._select_all_new)
         self.table_new.tree.bind('<Control-A>', self._select_all_new)
+        self.table_new.tree.bind('+', self._load_ok_new)
+        self.table_new.tree.bind('-', self._load_nok_new)
         self.table_tmp.tree.bind('<Control-a>', self._select_all_tmp)
         self.table_tmp.tree.bind('<Control-A>', self._select_all_tmp)
+        self.table_tmp.tree.bind('+', self._load_ok_tmp)
+        self.table_tmp.tree.bind('-', self._load_nok_tmp)
+
 
     # def _change_picture(self,event):
     #     item_id = str(self.table_ok.tree.focus())
@@ -277,12 +287,10 @@ class MenuDemo(ttk.Frame):
 
     def _select_all_tmp(self, event):
         for item_id in self.table_tmp.tree.get_children():
-            # item = self.table_tmp.tree.item(item_id)
             self.table_tmp.tree.selection_add(item_id)
 
     def _select_all_new(self, event):
         for item_id in self.table_new.tree.get_children():
-            # item = self.table_new.tree.item(item_id)
             self.table_new.tree.selection_add(item_id)
 
     def _del_ok_table(self, event):
@@ -304,25 +312,44 @@ class MenuDemo(ttk.Frame):
         self.table_new.tree.insert('', 'end', values=item['values'])
         self.table_nok.tree.delete(item_id)
 
-    def _load_ok(self, event):
+
+    def _load_ok_new(self, event):
+        for item_id in self.table_new.tree.selection():
+            item = self.table_new.tree.item(item_id)
+            h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
+            self.data.remove(h)
+            self.table_new.tree.delete(item_id)
+            self.table_ok.tree.insert('', 'end', values=item['values'])
+
+
+    def _load_nok_new(self, event):
+        for item_id in self.table_new.tree.selection():
+            item = self.table_new.tree.item(item_id)
+            h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
+            self.data.remove(h)
+            self.table_new.tree.delete(item_id)
+            self.table_nok.tree.insert('', 'end', values=item['values'])
+
+
+    def _load_ok_tmp(self, event):
         for item_id in self.table_tmp.tree.selection():
             item = self.table_tmp.tree.item(item_id)
             for item_new in self.table_new.tree.get_children():
                 item_del = self.table_new.tree.item(item_new)
                 if item['values'][0] == item_del['values'][0]:
-                    h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]))
+                    h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
                     self.data.remove(h)
                     self.table_new.tree.delete(item_new)
             self.table_ok.tree.insert('', 'end', values=item['values'])
             self.table_tmp.tree.delete(item_id)
 
-    def _load_nok(self, event):
+    def _load_nok_tmp(self, event):
         for item_id in self.table_tmp.tree.selection():
             item = self.table_tmp.tree.item(item_id)
             for item_new in self.table_new.tree.get_children():
                 item_del = self.table_new.tree.item(item_new)
                 if str(item['values'][0]) == str(item_del['values'][0]):
-                    h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]))
+                    h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
                     print(h)
                     self.data.remove(h)
                     self.table_new.tree.delete(item_new)
@@ -334,7 +361,6 @@ class MenuDemo(ttk.Frame):
             item = self.table_tmp.tree.item(item_id)
             print(item['values'])
             del self.tmp_dict[item['values'][0]]
-            # self.table_new.tree.insert('', 'end', values=item['values'])
             self.table_tmp.tree.delete(item_id)
 
     def _load_tmp_table(self, event):
@@ -471,9 +497,6 @@ class cCSV(cData):
     def getTweets(self):
         return self.data
 
-    def search_text(self, tKeyWords):
-
-
 
 
 class cElastic(cData):
@@ -499,7 +522,7 @@ class cElastic(cData):
         self.nIndexSize = int(self.xEs.count(index = self.sIndexName)['count'])
         self.xIdPack = {}
 
-        lFields = ['id_str', 'text', 'user.id_str']
+        lFields = ['timestamp_ms', 'id_str', 'text', 'user.id_str']
 
         xResponse = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m', sort = ['timestamp_ms:asc'],
                                     _source=lFields, stored_fields=lFields, size=self.sLimit,
@@ -574,7 +597,9 @@ class cElastic(cData):
         sScroll = xResponse['_scroll_id']
         for hit in xResponse['hits']['hits']:
             self.xIdPack.update({hit['_source']['id_str']: 1})
-            test = (hit['_source']['id_str'], hit['_source']['text'].encode('ascii', errors='ignore').decode(),
+
+            st = datetime.datetime.fromtimestamp(int(hit['_source']['timestamp_ms'])/100).strftime('%Y-%m-%d %H:%M:%S')
+            test = (st, hit['_source']['id_str'], hit['_source']['text'].encode('ascii', errors='ignore').decode(),
                     hit['_source']['user']['id_str'])
             data.append(test)
             self.nCurrentSize += 1
@@ -592,7 +617,8 @@ class cElastic(cData):
                 sScroll = xResponse['_scroll_id']
                 for hit in xResponse['hits']['hits']:
                     # self.xIdPack.update({hit['_source']['id_str']:1})
-                    test = (hit['_source']['id_str'], hit['_source']['text'].encode('ascii', errors='ignore').decode(),
+                    st = datetime.datetime.fromtimestamp(int(hit['_source']['timestamp_ms'])/100).strftime('%Y-%m-%d %H:%M:%S')
+                    test = (st, hit['_source']['id_str'], hit['_source']['text'].encode('ascii', errors='ignore').decode(),
                             hit['_source']['user']['id_str'])
                     nCmpt += 1
                     data.append(test)
