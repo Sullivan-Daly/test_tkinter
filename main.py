@@ -79,6 +79,11 @@ class OwnTable(ttk.Frame):
         # reverse sort direction for next sort operation
         MenuDemo.SortDir = not descending
 
+class cTable:
+    def __init__(self):
+        self.data = []
+        self.ok = []
+        self.nok = []
 
 class MenuDemo(ttk.Frame):
 
@@ -91,10 +96,18 @@ class MenuDemo(ttk.Frame):
         self.isapp = isapp
         self.image = 'delete.png'
         self.t_config = self.config_reader()
-        self.elastic = cElastic(self.t_config)
+        self.tData = cTable()
+        print(self.t_config['load__option'])
+        print(type(self.t_config['load__option']))
+        if self.t_config['load__option'] == '1':
+            self.handleData = cCSV(self.t_config, self.tData)
+            print('csv')
+        if self.t_config['load__option'] == '2':
+            self.handleData = cElastic(self.t_config, self.tData)
+            print('elastic')
         # self.data = self.elastic.search_text(['salon'])
         # self.data = self.elastic.search_user("799317915640152064")
-        self.data = self.elastic.getTweets()
+        self.tData.data = self.handleData.getTweets()
         self._create_widgets()
 
     @staticmethod
@@ -217,7 +230,7 @@ class MenuDemo(ttk.Frame):
         self.ent.pack(side=LEFT, expand=Y, fill=X)
 
         self.table_new = OwnTable(panel_left_top, TOP, self.t_config)
-        self.table_new.load_data(self.data)
+        self.table_new.load_data(self.tData.data)
 
         tmp_btn = ttk.Button(panel_left_top, text='TMP', width=25, name='tmpBtn')
         tmp_btn.pack(side=RIGHT, anchor=CENTER, pady='2m')
@@ -297,28 +310,37 @@ class MenuDemo(ttk.Frame):
         item_id = self.table_ok.tree.focus()
         item = self.table_ok.tree.item(item_id)
         h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]))
-        self.data.append(h)
+        self.tData.data.append(h)
+        if h in self.tData.ok:
+            self.tData.ok.remove(h)
         del self.tmp_dict[item['values'][0]]
         self.table_new.tree.insert('', 'end', values=item['values'])
-        self.table_ok.tree.delete(item_id)
+        if self.table_ok.tree.exists(item_id):
+            self.table_ok.tree.delete(item_id)
 
 
     def _del_nok_table(self, event):
         item_id = str(self.table_nok.tree.focus())
         item = self.table_nok.tree.item(item_id)
         h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]))
-        self.data.append(h)
+        self.tData.data.append(h)
+        if h in self.tData.nok:
+            self.tData.nok.remove(h)
         del self.tmp_dict[item['values'][0]]
         self.table_new.tree.insert('', 'end', values=item['values'])
-        self.table_nok.tree.delete(item_id)
+        if self.table_nok.tree.exists(item_id):
+            self.table_nok.tree.delete(item_id)
 
 
     def _load_ok_new(self, event):
         for item_id in self.table_new.tree.selection():
             item = self.table_new.tree.item(item_id)
             h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
-            self.data.remove(h)
-            self.table_new.tree.delete(item_id)
+            self.tData.ok.append(h)
+            if h in self.tData.data:
+                self.tData.data.remove(h)
+            if self.table_new.tree.exists(item_id):
+                self.table_new.tree.delete(item_id)
             self.table_ok.tree.insert('', 'end', values=item['values'])
 
 
@@ -326,8 +348,11 @@ class MenuDemo(ttk.Frame):
         for item_id in self.table_new.tree.selection():
             item = self.table_new.tree.item(item_id)
             h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
-            self.data.remove(h)
-            self.table_new.tree.delete(item_id)
+            self.tData.nok.append(h)
+            if h in self.tData.data:
+                self.tData.data.remove(h)
+            if self.table_new.tree.exists(item_id):
+                self.table_new.tree.delete(item_id)
             self.table_nok.tree.insert('', 'end', values=item['values'])
 
 
@@ -338,10 +363,14 @@ class MenuDemo(ttk.Frame):
                 item_del = self.table_new.tree.item(item_new)
                 if item['values'][0] == item_del['values'][0]:
                     h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
-                    self.data.remove(h)
-                    self.table_new.tree.delete(item_new)
+                    if h in self.tData.data:
+                        self.tData.data.remove(h)
+                    self.tData.ok.append(h)
+                    if self.table_new.tree.exists(item_new):
+                        self.table_new.tree.delete(item_new)
             self.table_ok.tree.insert('', 'end', values=item['values'])
-            self.table_tmp.tree.delete(item_id)
+            if self.table_tmp.tree.exists(item_id):
+                self.table_tmp.tree.delete(item_id)
 
     def _load_nok_tmp(self, event):
         for item_id in self.table_tmp.tree.selection():
@@ -350,18 +379,22 @@ class MenuDemo(ttk.Frame):
                 item_del = self.table_new.tree.item(item_new)
                 if str(item['values'][0]) == str(item_del['values'][0]):
                     h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
-                    print(h)
-                    self.data.remove(h)
-                    self.table_new.tree.delete(item_new)
+                    if h in self.tData.data:
+                        self.tData.data.remove(h)
+                    self.tData.nok.append(h)
+                    if self.table_new.tree.exists(item_id):
+                        self.table_new.tree.delete(item_new)
             self.table_nok.tree.insert('', 'end', values=item['values'])
-            self.table_tmp.tree.delete(item_id)
+            if self.table_tmp.tree.exists(item_id):
+                self.table_tmp.tree.delete(item_id)
 
     def _del_tmp_selection(self, event):
         for item_id in self.table_tmp.tree.selection():
             item = self.table_tmp.tree.item(item_id)
             print(item['values'])
             del self.tmp_dict[item['values'][0]]
-            self.table_tmp.tree.delete(item_id)
+            if self.table_tmp.tree.exists(item_id):
+                self.table_tmp.tree.delete(item_id)
 
     def _load_tmp_table(self, event):
         item_id = str(self.table_new.tree.focus())
@@ -378,23 +411,25 @@ class MenuDemo(ttk.Frame):
                 self.table_tmp.tree.insert('', 'end', values=item['values'])
 
     def _load_search(self, event):
+        self.table_new.tree.delete(*self.table_new.tree.get_children())
         if self.cb1.get() == 'word':
-            for i in self.table_new.tree.get_children():
-                item = self.table_new.tree.item(i)
-                if item['values'][1].find(self.ent.get()) < 0:
-                    self.table_new.tree.delete(i)
+            tWords = self.ent.get().split(' ')
+            self.tData.data = self.handleData.search_text(tWords)
+            self.table_new.load_data(self.tData.data)
         if self.cb1.get() == 'user':
-            for i in self.table_new.tree.get_children():
-                item = self.table_new.tree.item(i)
-                if str(item['values'][2]) != self.ent.get():
-                    self.table_new.tree.delete(i)
+            sUser = self.ent.get()
+            self.tData.data = self.handleData.search_user(sUser)
+            self.table_new.load_data(self.tData.data)
 
     def _load_random(self, event):
         self.table_new.tree.delete(*self.table_new.tree.get_children())
-        for i, item in enumerate(self.data):
-            if i >= int(self.t_config['display__limit']):
-                break
-            self.table_new.tree.insert('', 'end', values=item)
+        self.tData.data = self.handleData.getTweets()
+        self.table_new.load_data(self.tData.data)
+
+        # for i, item in enumerate(self.tData.data):
+        #     if i >= int(self.t_config['display__limit']):
+        #         break
+        #     self.table_new.tree.insert('', 'end', values=item)
 
     def _build_submenus(self):
         # create the submenus
@@ -432,23 +467,6 @@ class MenuDemo(ttk.Frame):
         for item in labels:
             menu.add_command(label=item)
 
-    def csv_data_load(self):
-        with open(self.t_config['load__path_file'], "r", encoding='utf16') as file:
-            i = 0
-            for row in file:
-                if i == 0:
-                    i += 1
-                else:
-                    h = row[1:].split('; ', maxsplit=3)
-                    printable = set(string.printable)
-                    # tmp = filter(lambda x: x in printable, h[2][1:-3])
-                    tmp = h[2][1:-3].encode('ascii', errors='ignore').decode()
-                    print(h[0])
-                    x = (int(h[0]), str(tmp), str(h[1]))
-                    # print(x)
-                    self.data.append(x)
-        print('DONE')
-
 
 class CHandleEs:
     def __init__(self):
@@ -466,20 +484,20 @@ class CHandleEs:
 
 
 class cData:
-    def __init__(self):
+    def __init__(self, t_config, tData):
         pass
 
     def getTweets(self):
         pass
 
-    def search_text(self):
+    def search_text(self, tKeyWords):
         pass
 
-    def search_user(self):
+    def search_user(self, ):
         pass
 
 class cCSV(cData):
-    def __init__(self, t_config):
+    def __init__(self, t_config, tData):
         self.t_config = t_config
         self.path = t_config['load__path_file']
         self.data = []
@@ -500,7 +518,7 @@ class cCSV(cData):
 
 
 class cElastic(cData):
-    def __init__(self, t_config):
+    def __init__(self, t_config, tData):
         self.sCluster = ''
         self.t_config = t_config
         self.xEs = self._connectionToEs()
@@ -509,6 +527,7 @@ class cElastic(cData):
         self.sDocTypeName = t_config['load__es_doctype']
         self.sDateBegin = t_config['load__es_date_begin'] + '000'
         self.sDateEnd = t_config['load__es_date_end'] + '000'
+        self.tData = tData
 
     def _connectionToEs(self):
         if len(self.sCluster):
@@ -518,7 +537,6 @@ class cElastic(cData):
         return es
 
     def getTweets(self):
-        self.nCurrentSize = 1
         self.nIndexSize = int(self.xEs.count(index = self.sIndexName)['count'])
         self.xIdPack = {}
 
@@ -537,7 +555,6 @@ class cElastic(cData):
         return data
 
     def search_text(self, tKeyWords):
-        self.nCurrentSize = 1
         self.nIndexSize = int(self.xEs.count(index = self.sIndexName)['count'])
         self.xIdPack = {}
 
@@ -569,7 +586,6 @@ class cElastic(cData):
         return data
 
     def search_user(self, sUserId):
-        self.nCurrentSize = 1
         self.nIndexSize = int(self.xEs.count(index = self.sIndexName)['count'])
         self.xIdPack = {}
 
@@ -598,11 +614,11 @@ class cElastic(cData):
         for hit in xResponse['hits']['hits']:
             self.xIdPack.update({hit['_source']['id_str']: 1})
 
-            st = datetime.datetime.fromtimestamp(int(hit['_source']['timestamp_ms'])/100).strftime('%Y-%m-%d %H:%M:%S')
+            st = datetime.datetime.fromtimestamp(int(hit['_source']['timestamp_ms'])/1000).strftime('%Y-%m-%d %H:%M:%S')
             test = (st, hit['_source']['id_str'], hit['_source']['text'].encode('ascii', errors='ignore').decode(),
                     hit['_source']['user']['id_str'])
-            data.append(test)
-            self.nCurrentSize += 1
+            if not test in self.tData.nok and not test in self.tData.ok :
+                data.append(test)
             nCmpt += 1
         print('Taille index : ' + str(self.nIndexSize))
 
@@ -617,11 +633,12 @@ class cElastic(cData):
                 sScroll = xResponse['_scroll_id']
                 for hit in xResponse['hits']['hits']:
                     # self.xIdPack.update({hit['_source']['id_str']:1})
-                    st = datetime.datetime.fromtimestamp(int(hit['_source']['timestamp_ms'])/100).strftime('%Y-%m-%d %H:%M:%S')
+                    st = datetime.datetime.fromtimestamp(int(hit['_source']['timestamp_ms'])/1000).strftime('%Y-%m-%d %H:%M:%S')
                     test = (st, hit['_source']['id_str'], hit['_source']['text'].encode('ascii', errors='ignore').decode(),
                             hit['_source']['user']['id_str'])
+                    if not test in self.tData.nok and not test in self.tData.ok:
+                        data.append(test)
                     nCmpt += 1
-                    data.append(test)
                 nCmpt += 1
             except:
                 print('test')

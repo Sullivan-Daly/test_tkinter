@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="ae115d30-5fff-421c-bffe-c35cc6496c13" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config.ini" afterPath="$PROJECT_DIR$/config.ini" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.py" afterPath="$PROJECT_DIR$/main.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,8 +18,8 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="182">
-              <caret line="275" column="56" lean-forward="true" selection-start-line="275" selection-start-column="56" selection-end-line="275" selection-end-column="56" />
+            <state relative-caret-position="748">
+              <caret line="119" column="67" lean-forward="true" selection-start-line="119" selection-start-column="67" selection-end-line="119" selection-end-column="67" />
               <folding>
                 <element signature="e#41#62#0" expanded="true" />
               </folding>
@@ -29,8 +30,8 @@
       <file leaf-file-name="config.ini" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/config.ini">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="3" />
+            <state relative-caret-position="34">
+              <caret line="2" column="10" lean-forward="false" selection-start-line="2" selection-start-column="10" selection-end-line="2" selection-end-column="10" />
               <folding />
             </state>
           </provider>
@@ -107,14 +108,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>del</find>
-      <find>entry</find>
-      <find>picture</find>
-      <find>image</find>
-      <find>root</find>
-      <find>csv_data_load</find>
-      <find>dict</find>
-      <find>random</find>
       <find>OwnTable</find>
       <find>csv</find>
       <find>1:</find>
@@ -137,6 +130,14 @@
       <find>data</find>
       <find>del_btn</find>
       <find>ok_btn</find>
+      <find>self.data</find>
+      <find>self.tData.data</find>
+      <find>nCurrentSize</find>
+      <find>getTweets(</find>
+      <find>ent.</find>
+      <find>.delete(</find>
+      <find>timestamp</find>
+      <find>self.elastic</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -146,8 +147,8 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/demopanels.py" />
-        <option value="$PROJECT_DIR$/config.ini" />
         <option value="$PROJECT_DIR$/main.py" />
+        <option value="$PROJECT_DIR$/config.ini" />
       </list>
     </option>
   </component>
@@ -311,7 +312,14 @@
       <option name="project" value="LOCAL" />
       <updated>1504541146433</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="+ interface boutons&#10;+ ajouts depuis table_new&#10;+ roccourcis clavier">
+      <created>1504617589579</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1504617589579</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -343,7 +351,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="interface class" />
-    <option name="LAST_COMMIT_MESSAGE" value="interface class" />
+    <MESSAGE value="+ interface boutons&#10;+ ajouts depuis table_new&#10;+ roccourcis clavier" />
+    <option name="LAST_COMMIT_MESSAGE" value="+ interface boutons&#10;+ ajouts depuis table_new&#10;+ roccourcis clavier" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -653,14 +662,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/config.ini">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="3" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/AppData/Local/Continuum/Miniconda3/Lib/tkinter/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="191">
@@ -669,10 +670,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/config.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="10" lean-forward="false" selection-start-line="2" selection-start-column="10" selection-end-line="2" selection-end-column="10" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="182">
-          <caret line="275" column="56" lean-forward="true" selection-start-line="275" selection-start-column="56" selection-end-line="275" selection-end-column="56" />
+        <state relative-caret-position="748">
+          <caret line="119" column="67" lean-forward="true" selection-start-line="119" selection-start-column="67" selection-end-line="119" selection-end-column="67" />
           <folding>
             <element signature="e#41#62#0" expanded="true" />
           </folding>
