@@ -17,8 +17,8 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="235">
-              <caret line="128" column="65" lean-forward="true" selection-start-line="128" selection-start-column="65" selection-end-line="128" selection-end-column="65" />
+            <state relative-caret-position="371">
+              <caret line="595" column="104" lean-forward="false" selection-start-line="595" selection-start-column="104" selection-end-line="595" selection-end-column="104" />
               <folding>
                 <element signature="e#41#62#0" expanded="true" />
               </folding>
@@ -325,7 +325,14 @@
       <option name="project" value="LOCAL" />
       <updated>1504625495697</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="+ clean du code">
+      <created>1504627921327</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1504627921327</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -359,7 +366,8 @@
     <MESSAGE value="interface class" />
     <MESSAGE value="+ interface boutons&#10;+ ajouts depuis table_new&#10;+ roccourcis clavier" />
     <MESSAGE value="+ recherche generique&#10;+ gestion des tweets tries dans la recherche" />
-    <option name="LAST_COMMIT_MESSAGE" value="+ recherche generique&#10;+ gestion des tweets tries dans la recherche" />
+    <MESSAGE value="+ clean du code" />
+    <option name="LAST_COMMIT_MESSAGE" value="+ clean du code" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -669,14 +677,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/AppData/Local/Continuum/Miniconda3/Lib/tkinter/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="191">
-          <caret line="1244" column="0" lean-forward="false" selection-start-line="1244" selection-start-column="0" selection-end-line="1244" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/config.ini">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="34">
@@ -685,10 +685,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Continuum/Miniconda3/Lib/tkinter/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="191">
+          <caret line="1244" column="0" lean-forward="false" selection-start-line="1244" selection-start-column="0" selection-end-line="1244" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="235">
-          <caret line="128" column="65" lean-forward="true" selection-start-line="128" selection-start-column="65" selection-end-line="128" selection-end-column="65" />
+        <state relative-caret-position="371">
+          <caret line="595" column="104" lean-forward="false" selection-start-line="595" selection-start-column="104" selection-end-line="595" selection-end-column="104" />
           <folding>
             <element signature="e#41#62#0" expanded="true" />
           </folding>

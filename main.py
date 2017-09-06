@@ -280,11 +280,12 @@ class MenuDemo(ttk.Frame):
         random_btn.bind('<Button-1>', self._load_random)
         del_btn_tmp.bind('<Button-1>', self._del_tmp_selection)
         tmp_btn.bind('<Button-1>', self._load_tmp_selection)
+        rt_btn_new.bind('<Button-1>', self._load_search_rt)
+        user_btn_new.bind('<Button-1>', self._load_search_user)
         self.table_new.tree.bind('t', self._load_tmp_selection)
         self.table_new.tree.bind('T', self._load_tmp_selection)
         self.table_ok.tree.bind('<Double-Button-1>', self._del_ok_table)
         self.table_nok.tree.bind('<Double-Button-1>', self._del_nok_table)
-        # self.table_tmp.tree.bind('<Double-Button-1>', self._change_picture)
         self.table_new.tree.bind('<Double-Button-1>', self._load_tmp_table)
         self.table_new.tree.bind('<Control-a>', self._select_all_new)
         self.table_new.tree.bind('<Control-A>', self._select_all_new)
@@ -303,10 +304,25 @@ class MenuDemo(ttk.Frame):
         for item_id in self.table_new.tree.get_children():
             self.table_new.tree.selection_add(item_id)
 
+    def _load_search_rt(self, event):
+        item_id = self.table_new.tree.focus()
+        item = self.table_new.tree.item(item_id)
+        s_tweet_id = str(item['values'][1])
+        self.tData.data = self.handleData.search_retweet(s_tweet_id)
+        self.table_tmp.load_data(self.tData.data)
+
+    def _load_search_user(self, event):
+        # self.table_tpm.tree.delete(*self.table_tmp.tree.get_children())
+        item_id = self.table_new.tree.focus()
+        item = self.table_new.tree.item(item_id)
+        s_user = str(item['values'][3])
+        self.tData.data = self.handleData.search_user(s_user)
+        self.table_tmp.load_data(self.tData.data)
+
     def _del_ok_table(self, event):
         item_id = self.table_ok.tree.focus()
         item = self.table_ok.tree.item(item_id)
-        h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]))
+        h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
         self.tData.data.append(h)
         if h in self.tData.ok:
             self.tData.ok.remove(h)
@@ -318,7 +334,7 @@ class MenuDemo(ttk.Frame):
     def _del_nok_table(self, event):
         item_id = str(self.table_nok.tree.focus())
         item = self.table_nok.tree.item(item_id)
-        h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]))
+        h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
         self.tData.data.append(h)
         if h in self.tData.nok:
             self.tData.nok.remove(h)
@@ -488,6 +504,9 @@ class CData:
     def search_text(self, t_key_words):
         pass
 
+    def search_retweet(self, s_tweet_id):
+        pass
+
     def search_user(self, s_user_id):
         pass
 
@@ -562,12 +581,19 @@ class CElastic(CData):
         s_key_words = s_key_words[:-1]
         s_key_words += '"'
 
+        print('s_key_words')
+        print(s_key_words)
+        print('n_words')
+        print(n_words)
+        print('t_key_words')
+        print(t_key_words)
+
         x_response = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m', body={"query": {
             "bool":
                 {"must": [
                     {"match":
                         {"text":
-                            {"query": s_key_words, "operator": "or", "minimum_should_match": n_words}}},
+                            {"query": s_key_words, "operator": "or", "minimum_should_match": n_words - 1}}},
                     {'range': {'timestamp_ms': {'gte': self.sDateBegin, 'lte': self.sDateEnd}}}]}}})
 
         self.nIndexSize = int(x_response['hits']['total'])
@@ -576,6 +602,37 @@ class CElastic(CData):
         data = self._return_from_scroll(x_response)
 
         return data
+
+    def search_retweet(self, s_tweet_id):
+        self.nIndexSize = int(self.xEs.count(index=self.sIndexName)['count'])
+        t_words = ''
+        x_response = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m', body={"query": {
+            "bool":
+                {"must": [
+                    {"match":
+                         {"id_str":
+                              {"query": s_tweet_id}}},
+                    {'range': {'timestamp_ms': {'gte': self.sDateBegin, 'lte': self.sDateEnd}}}]}}})
+
+        for hit in x_response['hits']['hits']:
+            t_words = hit['_source']['text'].split(' ')
+            print('HIT -> ' + hit['_source']['text'])
+
+        if t_words[0] == 'RT':
+            del t_words[0]
+            print('RT')
+
+        if t_words[0][0] == '@':
+            del t_words [0]
+            print('@')
+
+        print('tableau')
+        print(t_words)
+        data = self.search_text(t_words)
+
+        return data
+
+
 
     def search_user(self, s_user_id):
         self.nIndexSize = int(self.xEs.count(index=self.sIndexName)['count'])
