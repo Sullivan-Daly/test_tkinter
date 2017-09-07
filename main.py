@@ -18,7 +18,7 @@ class OwnTable(ttk.Frame):
         f.pack(side=x_side, fill=BOTH, expand=Y)
         self.t_config = t_config
         # create the tree and scrollbars
-        self.dataCols = ('timestamp', 'ID', 'text', 'user')
+        self.dataCols = ('text', 'timestamp', 'ID', 'user')
         self.tree = ttk.Treeview(columns=self.dataCols, show='headings')
 
         ysb = ttk.Scrollbar(orient=VERTICAL, command=self.tree.yview)
@@ -57,7 +57,7 @@ class OwnTable(ttk.Frame):
             b = item[1]
             c = item[2]
             d = item[3]
-            z = (a, str(b), str(c), d)
+            z = (str(a), str(b), c, d)
             test = self.tree.insert('', 'end', values=z)
 
     def _column_sort(self, col, descending=False):
@@ -82,6 +82,8 @@ class CTable:
         self.data = []
         self.ok = []
         self.nok = []
+        self.ok_id = []
+        self.nok_id = []
 
 
 class MenuDemo(ttk.Frame):
@@ -307,7 +309,7 @@ class MenuDemo(ttk.Frame):
     def _load_search_rt(self, event):
         item_id = self.table_new.tree.focus()
         item = self.table_new.tree.item(item_id)
-        s_tweet_id = str(item['values'][1])
+        s_tweet_id = str(item['values'][2])
         self.tData.data = self.handleData.search_retweet(s_tweet_id)
         self.table_tmp.load_data(self.tData.data)
 
@@ -326,7 +328,9 @@ class MenuDemo(ttk.Frame):
         self.tData.data.append(h)
         if h in self.tData.ok:
             self.tData.ok.remove(h)
-        del self.tmp_dict[item['values'][0]]
+        if str(item['values'][2]) in self.tData.ok_id:
+            self.tData.ok_id.remove(str(item['values'][2]))
+        del self.tmp_dict[item['values'][2]]
         self.table_new.tree.insert('', 'end', values=item['values'])
         if self.table_ok.tree.exists(item_id):
             self.table_ok.tree.delete(item_id)
@@ -338,7 +342,9 @@ class MenuDemo(ttk.Frame):
         self.tData.data.append(h)
         if h in self.tData.nok:
             self.tData.nok.remove(h)
-        del self.tmp_dict[item['values'][0]]
+        if str(item['values'][2]) in self.tData.nok_id:
+            self.tData.nok_id.remove(str(item['values'][2]))
+        del self.tmp_dict[item['values'][2]]
         self.table_new.tree.insert('', 'end', values=item['values'])
         if self.table_nok.tree.exists(item_id):
             self.table_nok.tree.delete(item_id)
@@ -348,6 +354,7 @@ class MenuDemo(ttk.Frame):
             item = self.table_new.tree.item(item_id)
             h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
             self.tData.ok.append(h)
+            self.tData.ok_id.append(str(item['values'][2]))
             if h in self.tData.data:
                 self.tData.data.remove(h)
             if self.table_new.tree.exists(item_id):
@@ -359,6 +366,7 @@ class MenuDemo(ttk.Frame):
             item = self.table_new.tree.item(item_id)
             h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
             self.tData.nok.append(h)
+            self.tData.nok_id.append(str(item['values'][2]))
             if h in self.tData.data:
                 self.tData.data.remove(h)
             if self.table_new.tree.exists(item_id):
@@ -370,13 +378,14 @@ class MenuDemo(ttk.Frame):
             item = self.table_tmp.tree.item(item_id)
             for item_new in self.table_new.tree.get_children():
                 item_del = self.table_new.tree.item(item_new)
-                if item['values'][0] == item_del['values'][0]:
+                if item['values'][2] == item_del['values'][2]:
                     h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
                     if h in self.tData.data:
                         self.tData.data.remove(h)
-                    self.tData.ok.append(h)
                     if self.table_new.tree.exists(item_new):
                         self.table_new.tree.delete(item_new)
+            self.tData.ok.append(h)
+            self.tData.ok_id.append(str(item['values'][2]))
             self.table_ok.tree.insert('', 'end', values=item['values'])
             if self.table_tmp.tree.exists(item_id):
                 self.table_tmp.tree.delete(item_id)
@@ -386,13 +395,14 @@ class MenuDemo(ttk.Frame):
             item = self.table_tmp.tree.item(item_id)
             for item_new in self.table_new.tree.get_children():
                 item_del = self.table_new.tree.item(item_new)
-                if str(item['values'][0]) == str(item_del['values'][0]):
+                if str(item['values'][2]) == str(item_del['values'][2]):
                     h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
                     if h in self.tData.data:
                         self.tData.data.remove(h)
-                    self.tData.nok.append(h)
                     if self.table_new.tree.exists(item_id):
                         self.table_new.tree.delete(item_new)
+            self.tData.nok.append(h)
+            self.tData.nok_id.append(str(item['values'][2]))
             self.table_nok.tree.insert('', 'end', values=item['values'])
             if self.table_tmp.tree.exists(item_id):
                 self.table_tmp.tree.delete(item_id)
@@ -401,22 +411,23 @@ class MenuDemo(ttk.Frame):
         for item_id in self.table_tmp.tree.selection():
             item = self.table_tmp.tree.item(item_id)
             print(item['values'])
-            del self.tmp_dict[item['values'][0]]
+            if item['values'][2] in self.tmp_dict:
+                del self.tmp_dict[item['values'][2]]
             if self.table_tmp.tree.exists(item_id):
                 self.table_tmp.tree.delete(item_id)
 
     def _load_tmp_table(self, event):
         item_id = str(self.table_new.tree.focus())
         item = self.table_new.tree.item(item_id)
-        if not self.tmp_dict.get(item['values'][0]):
-            self.tmp_dict[item['values'][0]] = 1
+        if not self.tmp_dict.get(item['values'][2]):
+            self.tmp_dict[item['values'][2]] = 1
             self.table_tmp.tree.insert('', 'end', values=item['values'])
 
     def _load_tmp_selection(self, event):
         for item_id in self.table_new.tree.selection():
             item = self.table_new.tree.item(item_id)
-            if not self.tmp_dict.get(item['values'][0]):
-                self.tmp_dict[item['values'][0]] = 1
+            if not self.tmp_dict.get(item['values'][2]):
+                self.tmp_dict[item['values'][2]] = 1
                 self.table_tmp.tree.insert('', 'end', values=item['values'])
 
     def _load_search(self, event):
@@ -620,14 +631,10 @@ class CElastic(CData):
 
         if t_words[0] == 'RT':
             del t_words[0]
-            print('RT')
 
         if t_words[0][0] == '@':
             del t_words [0]
-            print('@')
 
-        print('tableau')
-        print(t_words)
         data = self.search_text(t_words)
 
         return data
@@ -659,14 +666,12 @@ class CElastic(CData):
         s_scroll = x_response['_scroll_id']
         for hit in x_response['hits']['hits']:
             st = datetime.datetime.fromtimestamp(int(hit['_source']['timestamp_ms'])/1000).strftime('%Y-%m-%d %H:%M:%S')
-            test = (st, hit['_source']['id_str'], hit['_source']['text'].encode('ascii', errors='ignore').decode(),
+            test = (hit['_source']['text'].encode('ascii', errors='ignore').decode(), st, hit['_source']['id_str'],
                     hit['_source']['user']['id_str'])
-            if test not in self.tData.nok and test not in self.tData.ok:
+            if hit['_source']['id_str'] not in self.tData.nok_id and hit['_source']['id_str'] not in self.tData.ok_id:
                 data.append(test)
             n_cmpt += 1
-        print('Taille index : ' + str(self.nIndexSize))
 
-        print(n_cmpt)
         n_cmpt += 1
 
         while n_cmpt < self.nIndexSize and n_cmpt < int(self.sLimit):
@@ -677,9 +682,10 @@ class CElastic(CData):
                 for hit in x_response['hits']['hits']:
                     st = datetime.datetime.fromtimestamp(int(hit['_source']['timestamp_ms'])/1000)\
                         .strftime('%Y-%m-%d %H:%M:%S')
-                    test = (st, hit['_source']['id_str'], hit['_source']['text'].encode('ascii', errors='ignore')
-                            .decode(), hit['_source']['user']['id_str'])
-                    if test not in self.tData.nok and test not in self.tData.ok:
+                    test = (hit['_source']['text'].encode('ascii', errors='ignore').decode(), st,
+                            hit['_source']['id_str'], hit['_source']['user']['id_str'])
+                    if hit['_source']['id_str'] not in self.tData.nok_id and hit['_source']['id_str'] not in \
+                            self.tData.ok_id:
                         data.append(test)
                     n_cmpt += 1
                 n_cmpt += 1
@@ -687,7 +693,6 @@ class CElastic(CData):
                 print('test')
                 break
 
-        print('toto')
         return data
 
 if __name__ == '__main__':
