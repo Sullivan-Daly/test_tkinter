@@ -330,7 +330,6 @@ class MenuDemo(ttk.Frame):
             self.tData.ok.remove(h)
         if str(item['values'][2]) in self.tData.ok_id:
             self.tData.ok_id.remove(str(item['values'][2]))
-        del self.tmp_dict[item['values'][2]]
         self.table_new.tree.insert('', 'end', values=item['values'])
         if self.table_ok.tree.exists(item_id):
             self.table_ok.tree.delete(item_id)
@@ -344,7 +343,6 @@ class MenuDemo(ttk.Frame):
             self.tData.nok.remove(h)
         if str(item['values'][2]) in self.tData.nok_id:
             self.tData.nok_id.remove(str(item['values'][2]))
-        del self.tmp_dict[item['values'][2]]
         self.table_new.tree.insert('', 'end', values=item['values'])
         if self.table_nok.tree.exists(item_id):
             self.table_nok.tree.delete(item_id)

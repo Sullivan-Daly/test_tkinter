@@ -17,8 +17,8 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1073">
-              <caret line="672" column="23" lean-forward="false" selection-start-line="672" selection-start-column="23" selection-end-line="672" selection-end-column="23" />
+            <state relative-caret-position="403">
+              <caret line="345" column="0" lean-forward="false" selection-start-line="345" selection-start-column="0" selection-end-line="345" selection-end-column="0" />
               <folding>
                 <element signature="e#41#62#0" expanded="true" />
               </folding>
@@ -107,7 +107,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>update</find>
       <find>data.</find>
       <find>treeview</find>
       <find>print</find>
@@ -137,6 +136,7 @@
       <find>get_tw</find>
       <find>.ok</find>
       <find>.nok</find>
+      <find>tmp_dict</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -339,7 +339,14 @@
       <option name="project" value="LOCAL" />
       <updated>1504695773785</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="+ gestion des tableaux OK et NOK pour la recherche&#10;+ recherche retweet partiel&#10;+ text en premier">
+      <created>1504775408617</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1504775408617</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -375,7 +382,8 @@
     <MESSAGE value="+ recherche generique&#10;+ gestion des tweets tries dans la recherche" />
     <MESSAGE value="+ clean du code" />
     <MESSAGE value="+ Partial search_retweet (gestion des caracteres speciaux)" />
-    <option name="LAST_COMMIT_MESSAGE" value="+ Partial search_retweet (gestion des caracteres speciaux)" />
+    <MESSAGE value="+ gestion des tableaux OK et NOK pour la recherche&#10;+ recherche retweet partiel&#10;+ text en premier" />
+    <option name="LAST_COMMIT_MESSAGE" value="+ gestion des tableaux OK et NOK pour la recherche&#10;+ recherche retweet partiel&#10;+ text en premier" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -703,8 +711,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1073">
-          <caret line="672" column="23" lean-forward="false" selection-start-line="672" selection-start-column="23" selection-end-line="672" selection-end-column="23" />
+        <state relative-caret-position="403">
+          <caret line="345" column="0" lean-forward="false" selection-start-line="345" selection-start-column="0" selection-end-line="345" selection-end-column="0" />
           <folding>
             <element signature="e#41#62#0" expanded="true" />
           </folding>
