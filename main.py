@@ -121,6 +121,7 @@ class MenuDemo(ttk.Frame):
         t_config['load__es_url'] = x_config['LOAD']['ES_URL']
         t_config['load__es_index'] = x_config['LOAD']['ES_INDEX']
         t_config['load__es_doctype'] = x_config['LOAD']['ES_DOCTYPE']
+        t_config['load__es_tri_name'] = x_config['LOAD']['ES_TRI_NAME']
         t_config['load__es_limit'] = x_config['LOAD']['ES_LIMIT']
         t_config['load__es_granularity'] = x_config['LOAD']['ES_GRANULARITY']
         t_config['load__es_date_begin'] = x_config['LOAD']['ES_DATE_BEGIN']
@@ -404,10 +405,10 @@ class MenuDemo(ttk.Frame):
     def _load_ok_tmp(self, event):
         for item_id in self.table_tmp.tree.selection():
             item = self.table_tmp.tree.item(item_id)
+            h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
             for item_new in self.table_new.tree.get_children():
                 item_del = self.table_new.tree.item(item_new)
                 if item['values'][2] == item_del['values'][2]:
-                    h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
                     if h in self.tData.data:
                         self.tData.data.remove(h)
                     if self.table_new.tree.exists(item_new):
@@ -421,10 +422,10 @@ class MenuDemo(ttk.Frame):
     def _load_nok_tmp(self, event):
         for item_id in self.table_tmp.tree.selection():
             item = self.table_tmp.tree.item(item_id)
+            h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
             for item_new in self.table_new.tree.get_children():
                 item_del = self.table_new.tree.item(item_new)
                 if str(item['values'][2]) == str(item_del['values'][2]):
-                    h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
                     if h in self.tData.data:
                         self.tData.data.remove(h)
                     if self.table_new.tree.exists(item_id):
@@ -725,3 +726,21 @@ class CElastic(CData):
 
 if __name__ == '__main__':
     MenuDemo().mainloop()
+
+
+# POST /twitter_test/tweet/AVnSyHjpBcM_BKrrmRNg/_update
+# {
+#    "script" : "ctx._source.new_field = 'value_of_new_field'"
+# }
+
+
+
+# POST twitter_test/_update_by_query
+# {
+#      "query" : {
+#         "match_all" : {}
+#     },
+#     "script" : {
+#       "inline": "ctx._source. = 'foo'"
+#     }
+# }
