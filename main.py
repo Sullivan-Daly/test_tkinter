@@ -286,6 +286,8 @@ class MenuDemo(ttk.Frame):
         user_btn_new.bind('<Button-1>', self._load_search_user)
         self.table_new.tree.bind('t', self._load_tmp_selection)
         self.table_new.tree.bind('T', self._load_tmp_selection)
+        self.table_ok.tree.bind('<Delete>', self._del_ok_select)
+        self.table_nok.tree.bind('<Delete>', self._del_nok_select)
         self.table_ok.tree.bind('<Double-Button-1>', self._del_ok_table)
         self.table_nok.tree.bind('<Double-Button-1>', self._del_nok_table)
         self.table_new.tree.bind('<Double-Button-1>', self._load_tmp_table)
@@ -333,6 +335,34 @@ class MenuDemo(ttk.Frame):
         self.table_new.tree.insert('', 'end', values=item['values'])
         if self.table_ok.tree.exists(item_id):
             self.table_ok.tree.delete(item_id)
+
+    def _del_ok_select(self, event):
+        print('ok')
+        for item_id in self.table_ok.tree.selection():
+            item = self.table_ok.tree.item(item_id)
+            h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
+            self.tData.data.append(h)
+            if h in self.tData.ok:
+                self.tData.ok.remove(h)
+            if str(item['values'][2]) in self.tData.ok_id:
+                self.tData.ok_id.remove(str(item['values'][2]))
+            self.table_new.tree.insert('', 'end', values=item['values'])
+            if self.table_ok.tree.exists(item_id):
+                self.table_ok.tree.delete(item_id)
+
+    def _del_nok_select(self, event):
+        print('nok')
+        for item_id in self.table_nok.tree.selection():
+            item = self.table_nok.tree.item(item_id)
+            h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
+            self.tData.data.append(h)
+            if h in self.tData.nok:
+                self.tData.nok.remove(h)
+            if str(item['values'][2]) in self.tData.nok_id:
+                self.tData.nok_id.remove(str(item['values'][2]))
+            self.table_new.tree.insert('', 'end', values=item['values'])
+            if self.table_nok.tree.exists(item_id):
+                self.table_nok.tree.delete(item_id)
 
     def _del_nok_table(self, event):
         item_id = str(self.table_nok.tree.focus())
