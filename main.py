@@ -105,9 +105,21 @@ class MenuDemo(ttk.Frame):
         if self.t_config['load__option'] == '2':
             self.handleData = CElastic(self.t_config, self.tData)
             print('elastic')
+        if self.handleData.get_tri_exist() == 0:
+            self.handleData.init_tri()
         # self.data = self.elastic.search_text(['salon'])
         # self.data = self.elastic.search_user("799317915640152064")
+        self.tData.ok = self.handleData.get_ok()
+        self.tData.nok = self.handleData.get_nok()
+        self.tData.nok_id = self.handleData.get_nok_id()
+        self.tData.ok_id = self.handleData.get_ok_id()
         self.tData.data = self.handleData.get_tweets()
+
+        print(self.tData.nok_id)
+        print(self.tData.nok)
+        # self.handleData.save_data('802862927342608384', 1)
+        self.handleData.get_tri_exist()
+
         self._create_widgets()
 
     @staticmethod
@@ -267,8 +279,10 @@ class MenuDemo(ttk.Frame):
         lb3.pack(side=TOP, padx=5, pady=5)
 
         self.table_nok = OwnTable(panel_left_bottom_1, LEFT, self.t_config)
+        self.table_nok.load_data(self.tData.nok)
 
         self.table_ok = OwnTable(panel_left_bottom_2, LEFT, self.t_config)
+        self.table_ok.load_data(self.tData.ok)
 
         pw4.add(panel_left_bottom_2)
         pw4.add(pw5)
@@ -333,6 +347,7 @@ class MenuDemo(ttk.Frame):
             self.tData.ok.remove(h)
         if str(item['values'][2]) in self.tData.ok_id:
             self.tData.ok_id.remove(str(item['values'][2]))
+        self.handleData.save_data(str(item['values'][2]), 0)
         self.table_new.tree.insert('', 'end', values=item['values'])
         if self.table_ok.tree.exists(item_id):
             self.table_ok.tree.delete(item_id)
@@ -347,6 +362,7 @@ class MenuDemo(ttk.Frame):
                 self.tData.ok.remove(h)
             if str(item['values'][2]) in self.tData.ok_id:
                 self.tData.ok_id.remove(str(item['values'][2]))
+            self.handleData.save_data(str(item['values'][2]), 0)
             self.table_new.tree.insert('', 'end', values=item['values'])
             if self.table_ok.tree.exists(item_id):
                 self.table_ok.tree.delete(item_id)
@@ -361,6 +377,7 @@ class MenuDemo(ttk.Frame):
                 self.tData.nok.remove(h)
             if str(item['values'][2]) in self.tData.nok_id:
                 self.tData.nok_id.remove(str(item['values'][2]))
+            self.handleData.save_data(str(item['values'][2]), 0)
             self.table_new.tree.insert('', 'end', values=item['values'])
             if self.table_nok.tree.exists(item_id):
                 self.table_nok.tree.delete(item_id)
@@ -374,6 +391,7 @@ class MenuDemo(ttk.Frame):
             self.tData.nok.remove(h)
         if str(item['values'][2]) in self.tData.nok_id:
             self.tData.nok_id.remove(str(item['values'][2]))
+        self.handleData.save_data(str(item['values'][2]), 0)
         self.table_new.tree.insert('', 'end', values=item['values'])
         if self.table_nok.tree.exists(item_id):
             self.table_nok.tree.delete(item_id)
@@ -384,6 +402,7 @@ class MenuDemo(ttk.Frame):
             h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
             self.tData.ok.append(h)
             self.tData.ok_id.append(str(item['values'][2]))
+            self.handleData.save_data(str(item['values'][2]), 1)
             if h in self.tData.data:
                 self.tData.data.remove(h)
             if self.table_new.tree.exists(item_id):
@@ -396,6 +415,7 @@ class MenuDemo(ttk.Frame):
             h = (str(item['values'][0]), str(item['values'][1]), str(item['values'][2]), str(item['values'][3]))
             self.tData.nok.append(h)
             self.tData.nok_id.append(str(item['values'][2]))
+            self.handleData.save_data(str(item['values'][2]), -1)
             if h in self.tData.data:
                 self.tData.data.remove(h)
             if self.table_new.tree.exists(item_id):
@@ -415,6 +435,7 @@ class MenuDemo(ttk.Frame):
                         self.table_new.tree.delete(item_new)
             self.tData.ok.append(h)
             self.tData.ok_id.append(str(item['values'][2]))
+            self.handleData.save_data(str(item['values'][2]), 1)
             self.table_ok.tree.insert('', 'end', values=item['values'])
             if self.table_tmp.tree.exists(item_id):
                 self.table_tmp.tree.delete(item_id)
@@ -432,6 +453,7 @@ class MenuDemo(ttk.Frame):
                         self.table_new.tree.delete(item_new)
             self.tData.nok.append(h)
             self.tData.nok_id.append(str(item['values'][2]))
+            self.handleData.save_data(str(item['values'][2]), -1)
             self.table_nok.tree.insert('', 'end', values=item['values'])
             if self.table_tmp.tree.exists(item_id):
                 self.table_tmp.tree.delete(item_id)
@@ -580,6 +602,7 @@ class CElastic(CData):
         self.sLimit = t_config['load__es_limit']
         self.sIndexName = t_config['load__es_index']
         self.sDocTypeName = t_config['load__es_doctype']
+        self.sTriName = t_config['load__es_tri_name']
         self.sDateBegin = t_config['load__es_date_begin'] + '000'
         self.sDateEnd = t_config['load__es_date_end'] + '000'
         self.tData = t_data
@@ -601,12 +624,83 @@ class CElastic(CData):
                                      sort=['timestamp_ms:asc'], _source=l_fields, stored_fields=l_fields,
                                      size=self.sLimit, body={'query': {'match_all': {}}})
 
-        print(x_response)
-
         self.nIndexSize = int(x_response['hits']['total'])
-        print(self.nIndexSize)
 
         data = self._return_from_scroll(x_response)
+        return data
+
+    def get_tri_exist(self):
+        x_response = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m', body={'query': {
+            'exists': {"field": self.sTriName}}})
+
+        return x_response['hits']['total']
+
+    def get_ok(self):
+        self.nIndexSize = int(self.xEs.count(index=self.sIndexName)['count'])
+        l_fields = ['timestamp_ms', 'id_str', 'text', 'user.id_str']
+
+        x_response = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m', body={"query": {
+            "bool":
+                {"must": [
+                    {"match":
+                         {self.sTriName:
+                              {"query": 1}}},
+                    {'range': {'timestamp_ms': {'gte': self.sDateBegin, 'lte': self.sDateEnd}}}]}}})
+
+        self.nIndexSize = int(x_response['hits']['total'])
+
+        data = self._return_from_scroll(x_response)
+        return data
+
+    def get_ok_id(self):
+        self.nIndexSize = int(self.xEs.count(index=self.sIndexName)['count'])
+        l_fields = ['timestamp_ms', 'id_str', 'text', 'user.id_str']
+
+        x_response = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m', body={"query": {
+            "bool":
+                {"must": [
+                    {"match":
+                         {self.sTriName:
+                              {"query": 1}}},
+                    {'range': {'timestamp_ms': {'gte': self.sDateBegin, 'lte': self.sDateEnd}}}]}}})
+
+        self.nIndexSize = int(x_response['hits']['total'])
+
+        data = self._return_id_from_scroll(x_response)
+        return data
+
+    def get_nok(self):
+        self.nIndexSize = int(self.xEs.count(index=self.sIndexName)['count'])
+        l_fields = ['timestamp_ms', 'id_str', 'text', 'user.id_str']
+
+        x_response = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m', body={"query": {
+            "bool":
+                {"must": [
+                    {"match":
+                         {self.sTriName:
+                              {"query": -1}}},
+                    {'range': {'timestamp_ms': {'gte': self.sDateBegin, 'lte': self.sDateEnd}}}]}}})
+
+        self.nIndexSize = int(x_response['hits']['total'])
+
+        data = self._return_from_scroll(x_response)
+        return data
+
+    def get_nok_id(self):
+        self.nIndexSize = int(self.xEs.count(index=self.sIndexName)['count'])
+        l_fields = ['timestamp_ms', 'id_str', 'text', 'user.id_str']
+
+        x_response = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m', body={"query": {
+            "bool":
+                {"must": [
+                    {"match":
+                         {self.sTriName:
+                              {"query": -1}}},
+                    {'range': {'timestamp_ms': {'gte': self.sDateBegin, 'lte': self.sDateEnd}}}]}}})
+
+        self.nIndexSize = int(x_response['hits']['total'])
+
+        data = self._return_id_from_scroll(x_response)
         return data
 
     def search_text(self, t_key_words):
@@ -637,7 +731,7 @@ class CElastic(CData):
                     {'range': {'timestamp_ms': {'gte': self.sDateBegin, 'lte': self.sDateEnd}}}]}}})
 
         self.nIndexSize = int(x_response['hits']['total'])
-        print("%d documents found" % x_response['hits']['total'])
+        # print("%d documents found" % x_response['hits']['total'])
 
         data = self._return_from_scroll(x_response)
 
@@ -682,7 +776,7 @@ class CElastic(CData):
                     {'range': {'timestamp_ms': {'gte': self.sDateBegin, 'lte': self.sDateEnd}}}]}}})
 
         self.nIndexSize = int(x_response['hits']['total'])
-        print("%d documents found" % x_response['hits']['total'])
+        # print("%d documents found" % x_response['hits']['total'])
 
         data = self._return_from_scroll(x_response)
 
@@ -723,6 +817,62 @@ class CElastic(CData):
                 break
 
         return data
+
+    def _return_id_from_scroll(self, x_response):
+        data = []
+        n_cmpt = 0
+
+        s_scroll = x_response['_scroll_id']
+        for hit in x_response['hits']['hits']:
+            st = datetime.datetime.fromtimestamp(int(hit['_source']['timestamp_ms'])/1000).strftime('%Y-%m-%d %H:%M:%S')
+            test = (hit['_source']['id_str'])
+            if hit['_source']['id_str'] not in self.tData.nok_id and hit['_source']['id_str'] not in self.tData.ok_id:
+                data.append(test)
+            n_cmpt += 1
+
+        n_cmpt += 1
+
+        while n_cmpt < self.nIndexSize and n_cmpt < int(self.sLimit):
+            try:
+                n_cmpt -= 1
+                x_response = self.xEs.scroll(scroll_id=s_scroll, scroll='10s')
+                s_scroll = x_response['_scroll_id']
+                for hit in x_response['hits']['hits']:
+                    st = datetime.datetime.fromtimestamp(int(hit['_source']['timestamp_ms'])/1000)\
+                        .strftime('%Y-%m-%d %H:%M:%S')
+                    test = (hit['_source']['id_str'])
+                    if hit['_source']['id_str'] not in self.tData.nok_id and hit['_source']['id_str'] not in \
+                            self.tData.ok_id:
+                        data.append(test)
+                    n_cmpt += 1
+                n_cmpt += 1
+            except:
+                print('test')
+                break
+
+        return data
+
+    def init_tri(self):
+        x_response = self.xEs.update_by_query(index=self.sIndexName,
+                                     body={"query": {"match_all": {}},
+                                           "script": {"inline": "ctx._source."+ self.sTriName +" = 0"}})
+
+    def save_data(self, id_str, value):
+        x_response = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m', body={"query": {
+            "bool":
+                {"must": [
+                    {"match":
+                         {"id_str":
+                              {"query": id_str}}},
+                    {'range': {'timestamp_ms': {'gte': self.sDateBegin, 'lte': self.sDateEnd}}}]}}})
+
+        self.nIndexSize = int(x_response['hits']['total'])
+        internal_id = x_response['hits']['hits'][0]['_id']
+
+        x_response = self.xEs.update(index=self.sIndexName, doc_type=self.sDocTypeName, id=internal_id,
+                                     body={"script": "ctx._source." + self.sTriName + "= " + str(value)})
+
+        # print(x_response)
 
 if __name__ == '__main__':
     MenuDemo().mainloop()
