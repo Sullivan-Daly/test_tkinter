@@ -10,7 +10,7 @@ class MsgPanel(ttk.Frame):
         ttk.Frame.__init__(self, master)
         self.pack(side=TOP, fill=X)
 
-        msg = Label(self, wraplength='4i', justify=LEFT)
+        msg = Label(self, wraplength='3i', justify=LEFT)
         msg['text'] = ''.join(msgtxt)
         msg.pack(fill=X, padx=5, pady=5)
 
@@ -21,7 +21,7 @@ class SeeDismissPanel(ttk.Frame):
         self.pack(side=BOTTOM, fill=X)  # resize with parent
 
         # separator widget
-        sep = ttk.Separator(orient=HORIZONTAL)
+        # sep = ttk.Separator(orient=VERTICAL)
 
         # Dismiss button
         im = Image.open('delete.png')  # image file

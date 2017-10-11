@@ -5,9 +5,73 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.font import Font
 from elasticsearch import Elasticsearch
+from math import ceil, floor, sqrt
+from PIL import Image, ImageTk
 import tkinter.filedialog as fdlg
 import datetime
 import configparser
+from time import sleep
+import glob
+import os
+
+class OwnCanvas(ttk.Frame):
+    def __init__(self, parent, t_config):
+        # f = ttk.Frame(parent)
+        # f.pack(side=RIGHT, fill=BOTH, expand=Y)
+        self.t_config = t_config
+        self.label = ttk.Label(parent)
+        self.label.pack()
+        image_tmp = PhotoImage(file='delete.png')
+        self.label['image'] = image_tmp
+        # self.f = f
+
+        # self.image_canvas = Canvas(parent, bg='red')
+        # image_tmp = ImageTk.PhotoImage(Image.open('delete.png'))
+        # self.image_canvas.create_image((0, 0), image=image_tmp, anchor='nw')
+        # self.t_config = t_config
+        # self.image_canvas.pack()
+        # self.image_canvas.update()
+        # sleep(3)
+
+    def return_frame(self):
+        return self.f
+
+    def image_loader(self, nb_images_per_tweets, event):
+        self.image_canvas.delete("all")
+        height = self.image_canvas.winfo_height()
+        width = self.image_canvas.winfo_width()
+        path_images = []
+        for tweet_id in nb_images_per_tweets:
+            for nb in range(nb_images_per_tweets[tweet_id]):
+                # TRES TRES LENT A CAUSE DES REGEX !!!
+                # reg_ex_path = self.t_config['load__path_image'] + '/' + str(tweet_id) + '_' + str(nb) + '.*'
+                # file = glob.glob(reg_ex_path)
+                # print(reg_ex_path)
+                # print(file)
+                path_png = self.t_config['load__path_image'] + '/' + str(tweet_id) + '_' + str(nb) + '.png'
+                path_jpg = self.t_config['load__path_image'] + '/' + str(tweet_id) + '_' + str(nb) + '.jpg'
+                if os.path.isfile(path_png):
+                    path_images.append(path_png)
+                elif os.path.isfile(path_jpg):
+                    path_images.append(path_jpg)
+
+        nb_images = len(path_images)
+        nb_line = ceil(sqrt(nb_images))
+        carre = min(height, width)
+        resize = floor(carre / nb_line)
+        photos = []
+        for path in path_images:
+            image = Image.open(path)
+            image_size = image.size
+            factor = resize / max(image_size[0], image_size[1])
+            image = image.resize(((int(image_size[0] * factor)), int(image_size[1] * factor)), Image.ANTIALIAS)
+            photos.append(ImageTk.PhotoImage(image))
+
+        for i, photo in enumerate(photos):
+            self.image_canvas.create_image((i % nb_line) * resize, floor(i / nb_line) * resize, image=photo,
+                                           anchor='nw')
+        self.image_canvas.update()
+        # self.image_canvas.pack(side='top', fill='both', expand='yes')
 
 
 class OwnTable(ttk.Frame):
@@ -57,7 +121,8 @@ class OwnTable(ttk.Frame):
             b = item[1]
             c = item[2]
             d = item[3]
-            z = (str(a), str(b), c, d)
+            e = item[4]
+            z = (str(a), str(b), c, d, e)
             test = self.tree.insert('', 'end', values=z)
 
     def _column_sort(self, col, descending=False):
@@ -86,6 +151,17 @@ class CTable:
         self.nok_id = []
 
 
+class CTmp:
+    def __init__(self, parent):
+        self.cv = Canvas(parent, bg='green')
+        self.cv.pack(side='top', fill='both', expand='yes')
+        image_tmp = ImageTk.PhotoImage(Image.open('delete.png'))
+        self.cv.create_image((0, 0), image=image_tmp)
+        self.cv.update()
+
+    def get_tmp(self):
+        return self.cv
+
 class MenuDemo(ttk.Frame):
     SortDir = True
 
@@ -93,8 +169,11 @@ class MenuDemo(ttk.Frame):
         ttk.Frame.__init__(self, name=name)
         # self.pack(side=BOTTOM, expand=Y, fill=BOTH)
         self.master.title('Menu Demo')
+        w, h = self.master.winfo_screenwidth(), self.master.winfo_screenheight()
+        self.master.geometry("%dx%d+0+0" % (w, h))
+        # self.master.attributes('-zoomed', True)
         self.isapp = isapp
-        self.image = 'delete.png'
+        self.image = ['delete.png', 'delete.png', 'delete.png', 'delete.png']
         self.t_config = self.config_reader()
         self.tData = CTable()
         print(self.t_config['load__option'])
@@ -130,6 +209,7 @@ class MenuDemo(ttk.Frame):
 
         t_config['load__option'] = x_config['LOAD']['OPTION']
         t_config['load__path_file'] = x_config['LOAD']['PATH_FILE']
+        t_config['load__path_image'] = x_config['LOAD']['PATH_IMAGE']
         t_config['load__es_url'] = x_config['LOAD']['ES_URL']
         t_config['load__es_index'] = x_config['LOAD']['ES_INDEX']
         t_config['load__es_doctype'] = x_config['LOAD']['ES_DOCTYPE']
@@ -166,27 +246,28 @@ class MenuDemo(ttk.Frame):
         self.tmp_dict[0] = 1
 
         main_panel = Frame(self.master, name='demo1')
-        main_panel.pack(side=TOP, fill=BOTH, expand=Y)
+        main_panel.pack(side=TOP, fill=BOTH, expand=1)
 
         pw1 = ttk.PanedWindow(main_panel, orient=HORIZONTAL)
-        pw1.pack(side=RIGHT, expand=Y, fill=BOTH, pady=3, padx='3')
+        ttk.Separator(pw1, orient=HORIZONTAL)
+        pw1.pack(side=RIGHT, expand=Y, fill=BOTH, pady=1, padx='1')
 
         pw2 = ttk.PanedWindow(pw1, orient=VERTICAL)
-        pw2.pack(side=RIGHT, expand=Y, fill=BOTH, pady=3, padx='3')
+        pw2.pack(side=RIGHT, pady=3, padx='3')
 
         pw3 = ttk.PanedWindow(pw1, orient=VERTICAL)
-        pw3.pack(side=RIGHT, expand=Y, fill=BOTH, pady=3, padx='3')
+        pw3.pack(side=RIGHT, pady=3, padx='3')
 
         pw4 = ttk.PanedWindow(pw3, orient=HORIZONTAL)
-        pw4.pack(side=RIGHT, expand=Y, fill=BOTH, pady=3, padx='3')
+        pw4.pack(side=RIGHT, pady=3, padx='3')
 
         pw5 = ttk.PanedWindow(pw4, orient=HORIZONTAL)
-        pw5.pack(side=RIGHT, expand=Y, fill=BOTH, pady=3, padx='3')
+        pw5.pack(side=RIGHT, pady=3, padx='3')
 
         pw1.add(pw3)
         pw1.add(pw2)
 
-        panel_right_1 = Frame(pw1, name='right')
+        panel_right_1 = Frame(pw1, name='right', width=200, height=200)
         panel_right_1.pack(side=TOP, fill=BOTH, expand=Y)
 
         panel_right_1_button = Frame(panel_right_1, name='button', width=30)
@@ -203,7 +284,7 @@ class MenuDemo(ttk.Frame):
 
         msg1 = ["tmp"]
         lb1 = ttk.Label(panel_right_1, text=''.join(msg1))
-        lb1.pack(side=TOP, padx=5, pady=5)
+        lb1.pack(side=TOP, pady=11)
 
         self.table_tmp = OwnTable(panel_right_1, RIGHT, self.t_config)
 
@@ -214,13 +295,40 @@ class MenuDemo(ttk.Frame):
         lb1 = ttk.Label(panel_right_2, text=''.join(msg1))
         lb1.pack(side=TOP, padx=5, pady=5)
 
-        self.im = PhotoImage(file=self.image)
-        lbl = ttk.Label(panel_right_2, image=self.im, relief=SUNKEN, border=2)
-        lbl.image = self.im
-        lbl.pack(side=TOP, padx='.5m', pady='.5m')
+        # photos = []
+        # for i, image in enumerate(images):
+        #     print(i, " loading, ", image)
+        #     try:
+        #         photo = PhotoImage(file=image)
+        #         photos.append(photo)
+        #         print("done")
+        #     except:
+        #         print ("FAIL")
+        #
+
+
+        # for i, photo in enumerate(photos):
+        #     cv.create_image(100*i, 100*i, image=photo, anchor='nw')
+        #
+        # cv.pack(side='top', fill='both', expand='yes')
+
+
+        self.image_canvas = Canvas(panel_right_2, bg='red')
+        image_tmp = ImageTk.PhotoImage(Image.open('delete.png'))
+        self.image_canvas.create_image((0, 0), image=image_tmp, anchor='nw')
+        self.image_canvas.pack(side=RIGHT, fill=BOTH, expand=Y)
+
 
         pw2.add(panel_right_1)
         pw2.add(panel_right_2)
+
+        self.panel_right_2 = panel_right_2
+
+        # self.cv = Canvas(panel_right_2, bg='green')
+        # self.cv.pack(side='top', fill='both', expand='yes')
+        # image_tmp = ImageTk.PhotoImage(Image.open('delete.png'))
+        # self.cv.create_image((0, 0), image=image_tmp)
+        # self.cv.update()
 
         panel_left_top = Frame(pw3, name='left_top')
         panel_left_top.pack(side=TOP)
@@ -299,6 +407,13 @@ class MenuDemo(ttk.Frame):
         tmp_btn.bind('<Button-1>', self._load_tmp_selection)
         rt_btn_new.bind('<Button-1>', self._load_search_rt)
         user_btn_new.bind('<Button-1>', self._load_search_user)
+        self.table_new.tree.bind('<Button-1>', self._load_image_selection)
+        self.table_new.tree.bind('<Shift-Button-1>', self._load_image_selection)
+        self.table_new.tree.bind('<Control-Button-1>', self._load_image_selection)
+        self.table_new.tree.bind('u', self._load_search_user)
+        self.table_new.tree.bind('U', self._load_search_user)
+        self.table_new.tree.bind('r', self._load_search_rt)
+        self.table_new.tree.bind('R', self._load_search_rt)
         self.table_new.tree.bind('t', self._load_tmp_selection)
         self.table_new.tree.bind('T', self._load_tmp_selection)
         self.table_ok.tree.bind('<Delete>', self._del_ok_select)
@@ -314,6 +429,76 @@ class MenuDemo(ttk.Frame):
         self.table_tmp.tree.bind('<Control-A>', self._select_all_tmp)
         self.table_tmp.tree.bind('+', self._load_ok_tmp)
         self.table_tmp.tree.bind('-', self._load_nok_tmp)
+
+        self.master.mainloop()
+
+        # while 1:
+        #     self.master.update_idletasks()
+        #     self.master.update()
+        #     sleep(0.01)
+
+    def image_loader(self, nb_images_per_tweets, event):
+        self.image_canvas.delete("all")
+        height = self.image_canvas.winfo_height()
+        width = self.image_canvas.winfo_width()
+        path_images = []
+        for tweet_id in nb_images_per_tweets:
+            for nb in range(nb_images_per_tweets[tweet_id]):
+                # TRES TRES LENT A CAUSE DES REGEX !!!
+                # reg_ex_path = self.t_config['load__path_image'] + '/' + str(tweet_id) + '_' + str(nb) + '.*'
+                # file = glob.glob(reg_ex_path)
+                # print(reg_ex_path)
+                # print(file)
+                path_png = self.t_config['load__path_image'] + '/' + str(tweet_id) + '_' + str(nb) + '.png'
+                path_jpg = self.t_config['load__path_image'] + '/' + str(tweet_id) + '_' + str(nb) + '.jpg'
+                if os.path.isfile(path_png):
+                    path_images.append(path_png)
+                elif os.path.isfile(path_jpg):
+                    path_images.append(path_jpg)
+
+        nb_images = len(path_images)
+        nb_line = ceil(sqrt(nb_images))
+        carre = min(height, width)
+        resize = floor(carre / nb_line)
+        photos = []
+        for path in path_images:
+            image = Image.open(path)
+            image_size = image.size
+            factor = resize / max(image_size[0], image_size[1])
+            image = image.resize(((int(image_size[0] * factor)), int(image_size[1] * factor)), Image.ANTIALIAS)
+            photos.append(ImageTk.PhotoImage(image))
+
+        self.image_gallery = photos
+
+        for i, photo in enumerate(self.image_gallery):
+            self.image_canvas.create_image((i % nb_line) * resize, floor(i / nb_line) * resize, image=photo,
+                                           anchor='nw')
+        self.image_canvas.update()
+        # self.image_canvas.pack(side='top', fill='both', expand='yes')
+
+    # def _load_image_selection(self, event):
+    #     nb_images = {}
+    #     widget = event.widget
+    #     selection = widget.curselection()
+    #     print (selection)
+
+    # def _get_selected_tweets_image_filenames(table_new):
+    #     selected_filenames = []
+    #     for item_id in table_new.tree.selection():
+    #         item = table_new.tree.item(item_id)
+    #         str(item['values'][2])
+
+    def _load_image_selection(self, event):
+        nb_images_per_tweet = {}
+        for item_id in self.table_new.tree.selection():
+            item = self.table_new.tree.item(item_id)
+            if item['values'] != "":
+                if item['values'][4] != 0:
+                    nb_images_per_tweet[item['values'][2]] = item['values'][4]
+        if len(nb_images_per_tweet):
+            self.image_loader(nb_images_per_tweet, event)
+
+
 
     def _select_all_tmp(self, event):
         for item_id in self.table_tmp.tree.get_children():
@@ -618,7 +803,7 @@ class CElastic(CData):
     def get_tweets(self):
         self.nIndexSize = int(self.xEs.count(index=self.sIndexName)['count'])
 
-        l_fields = ['timestamp_ms', 'id_str', 'text', 'user.id_str']
+        l_fields = ['timestamp_ms', 'id_str', 'text', 'user.id_str', 'has_image']
 
         x_response = self.xEs.search(index=self.sIndexName, doc_type=self.sDocTypeName, scroll='10m',
                                      sort=['timestamp_ms:asc'], _source=l_fields, stored_fields=l_fields,
@@ -666,7 +851,7 @@ class CElastic(CData):
 
         self.nIndexSize = int(x_response['hits']['total'])
 
-        data = self._return_id_from_scroll(x_response)
+        data = self._return_from_scroll(x_response)
         return data
 
     def get_nok(self):
@@ -790,7 +975,7 @@ class CElastic(CData):
         for hit in x_response['hits']['hits']:
             st = datetime.datetime.fromtimestamp(int(hit['_source']['timestamp_ms'])/1000).strftime('%Y-%m-%d %H:%M:%S')
             test = (hit['_source']['text'].encode('ascii', errors='ignore').decode(), st, hit['_source']['id_str'],
-                    hit['_source']['user']['id_str'])
+                    hit['_source']['user']['id_str'], hit['_source']['has_image'])
             if hit['_source']['id_str'] not in self.tData.nok_id and hit['_source']['id_str'] not in self.tData.ok_id:
                 data.append(test)
             n_cmpt += 1
@@ -806,7 +991,7 @@ class CElastic(CData):
                     st = datetime.datetime.fromtimestamp(int(hit['_source']['timestamp_ms'])/1000)\
                         .strftime('%Y-%m-%d %H:%M:%S')
                     test = (hit['_source']['text'].encode('ascii', errors='ignore').decode(), st,
-                            hit['_source']['id_str'], hit['_source']['user']['id_str'])
+                            hit['_source']['id_str'], hit['_source']['user']['id_str'], hit['_source']['has_image'])
                     if hit['_source']['id_str'] not in self.tData.nok_id and hit['_source']['id_str'] not in \
                             self.tData.ok_id:
                         data.append(test)
@@ -871,11 +1056,12 @@ class CElastic(CData):
 
         x_response = self.xEs.update(index=self.sIndexName, doc_type=self.sDocTypeName, id=internal_id,
                                      body={"script": "ctx._source." + self.sTriName + "= " + str(value)})
-
-        # print(x_response)
+        #
+        # print(id_str)
 
 if __name__ == '__main__':
-    MenuDemo().mainloop()
+    xM = MenuDemo()
+    # xM.mainloop()
 
 
 # POST /twitter_test/tweet/AVnSyHjpBcM_BKrrmRNg/_update
