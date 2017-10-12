@@ -313,7 +313,7 @@ class MenuDemo(ttk.Frame):
         # cv.pack(side='top', fill='both', expand='yes')
 
 
-        self.image_canvas = Canvas(panel_right_2, bg='red')
+        self.image_canvas = Canvas(panel_right_2, bg='white')
         image_tmp = ImageTk.PhotoImage(Image.open('delete.png'))
         self.image_canvas.create_image((0, 0), image=image_tmp, anchor='nw')
         self.image_canvas.pack(side=RIGHT, fill=BOTH, expand=Y)
@@ -407,7 +407,7 @@ class MenuDemo(ttk.Frame):
         tmp_btn.bind('<Button-1>', self._load_tmp_selection)
         rt_btn_new.bind('<Button-1>', self._load_search_rt)
         user_btn_new.bind('<Button-1>', self._load_search_user)
-        self.table_new.tree.bind('<Button-1>', self._load_image_selection)
+        self.table_new.tree.bind('<ButtonRelease-1>', self._load_image_selection)
         self.table_new.tree.bind('<Shift-Button-1>', self._load_image_selection)
         self.table_new.tree.bind('<Control-Button-1>', self._load_image_selection)
         self.table_new.tree.bind('u', self._load_search_user)
