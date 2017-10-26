@@ -190,13 +190,13 @@ class CElastic(CData):
                 {"must": [
                     {"match":
                         {"text":
-                            {"query": s_key_words, "operator": "or", "minimum_should_match": n_words - 1}}},
+                            {"query": s_key_words, "operator": "or", "minimum_should_match": n_words}}},
                     {'range': {'timestamp_ms': {'gte': self.sDateBegin, 'lte': self.sDateEnd}}}]}}})
 
         self.nIndexSize = int(x_response['hits']['total'])
-        # print("%d documents found" % x_response['hits']['total'])
+        print("%d documents found" % x_response['hits']['total'])
 
-        data = self._return_from_scroll(x_response)
+        data = self._retweet_from_scroll(x_response, n_words)
 
         return data
 
@@ -242,6 +242,46 @@ class CElastic(CData):
         # print("%d documents found" % x_response['hits']['total'])
 
         data = self._return_from_scroll(x_response)
+
+        return data
+
+    def _retweet_from_scroll(self, x_response, nb_words):
+        data = []
+        n_cmpt = 0
+
+        s_scroll = x_response['_scroll_id']
+        for hit in x_response['hits']['hits']:
+            st = datetime.datetime.fromtimestamp(int(hit['_source']['timestamp_ms'])/1000).strftime('%Y-%m-%d %H:%M:%S')
+            result_len = len(hit['_source']['text'].split(' ')) - 1
+            if result_len <= nb_words:
+                test = (hit['_source']['text'].encode('ascii', errors='ignore').decode(), st, hit['_source']['id_str'],
+                        hit['_source']['user']['id_str'], hit['_source']['has_image'])
+                if hit['_source']['id_str'] not in self.tData.nok_id and hit['_source']['id_str'] not in self.tData.ok_id:
+                    data.append(test)
+                n_cmpt += 1
+
+        n_cmpt += 1
+
+        while n_cmpt < self.nIndexSize and n_cmpt < int(self.sLimit):
+            try:
+                n_cmpt -= 1
+                x_response = self.xEs.scroll(scroll_id=s_scroll, scroll='10s')
+                s_scroll = x_response['_scroll_id']
+                for hit in x_response['hits']['hits']:
+                    st = datetime.datetime.fromtimestamp(int(hit['_source']['timestamp_ms'])/1000)\
+                        .strftime('%Y-%m-%d %H:%M:%S')
+                    result_len = len(hit['_source']['text'].split(' ')) - 1
+                    if result_len <= nb_words:
+                        test = (hit['_source']['text'].encode('ascii', errors='ignore').decode(), st,
+                                hit['_source']['id_str'], hit['_source']['user']['id_str'], hit['_source']['has_image'])
+                        if hit['_source']['id_str'] not in self.tData.nok_id and hit['_source']['id_str'] not in \
+                                self.tData.ok_id:
+                            data.append(test)
+                    n_cmpt += 1
+                n_cmpt += 1
+            except:
+                print('test')
+                break
 
         return data
 
